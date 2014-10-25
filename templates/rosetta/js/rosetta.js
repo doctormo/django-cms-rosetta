@@ -7,14 +7,14 @@ google.setOnLoadCallback(function() {
         $('.hide', $(this).parent()).hide();
     });
 
-{% if rosetta_settings.ENABLE_TRANSLATION_SUGGESTIONS and rosetta_settings.AZURE_CLIENT_ID and rosetta_settings.AZURE_CLIENT_SECRET %}    
+{% if ENABLE_TRANSLATION_SUGGESTIONS and AZURE_CLIENT_ID and AZURE_CLIENT_SECRET %}    
     $('a.suggest').click(function(e){
         e.preventDefault();
         var a = $(this);
         var str = a.html();
         var orig = $('.original .message', a.parents('tr')).html();
         var trans=$('textarea',a.parent());
-        var sourceLang = '{{ rosetta_settings.MESSAGES_SOURCE_LANGUAGE_CODE }}';
+        var sourceLang = '{{ MESSAGES_SOURCE_LANGUAGE_CODE }}';
         var destLang = '{{ rosetta_i18n_lang_code }}';
 
         orig = unescape(orig).replace(/<br\s?\/?>/g,'\n').replace(/<code>/,'').replace(/<\/code>/g,'').replace(/&gt;/g,'>').replace(/&lt;/g,'<');
@@ -37,7 +37,7 @@ google.setOnLoadCallback(function() {
     });
 {% endif %}
 
-{% if rosetta_settings.ENABLE_TRANSLATION_SUGGESTIONS and rosetta_settings.YANDEX_TRANSLATE_KEY %}
+{% if ENABLE_TRANSLATION_SUGGESTIONS and YANDEX_TRANSLATE_KEY %}
     $('a.suggest').click(function(e){
         e.preventDefault();
         var a = $(this);
@@ -51,8 +51,8 @@ google.setOnLoadCallback(function() {
         var apiData = {
             error: 'onTranslationError',
             success: 'onTranslationComplete',
-            lang: '{{ rosetta_settings.MESSAGES_SOURCE_LANGUAGE_CODE }}-{{ rosetta_i18n_lang_code }}',
-            key: '{{ rosetta_settings.YANDEX_TRANSLATE_KEY }}',
+            lang: '{{ MESSAGES_SOURCE_LANGUAGE_CODE }}-{{ rosetta_i18n_lang_code }}',
+            key: '{{ YANDEX_TRANSLATE_KEY }}',
             format: 'html',
             text: orig
         };

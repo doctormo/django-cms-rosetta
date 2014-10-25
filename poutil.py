@@ -1,9 +1,9 @@
 from datetime import datetime
-from django.conf import settings
 from django.core.cache import get_cache
-from rosetta.conf import settings as rosetta_settings
 import django
 import os
+
+from .settings import *
 
 try:
     from django.utils import timezone
@@ -11,12 +11,7 @@ except:
     timezone = None
 
 
-try:
-    set
-except NameError:
-    from sets import Set as set   # Python 2.3 fallback
-
-cache = get_cache(rosetta_settings.ROSETTA_CACHE_NAME)
+cache = get_cache(CACHE_NAME)
 
 
 def timestamp_with_timezone(dt=None):
@@ -72,7 +67,7 @@ def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False)
 
     # project/app/locale
     for appname in settings.INSTALLED_APPS:
-        if rosetta_settings.EXCLUDED_APPLICATIONS and appname in rosetta_settings.EXCLUDED_APPLICATIONS:
+        if EXCLUDED_APPLICATIONS and appname in EXCLUDED_APPLICATIONS:
             continue
         p = appname.rfind('.')
         if p >= 0:
@@ -112,7 +107,7 @@ def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False)
     for path in paths:
         for lang_ in langs:
             dirname = os.path.join(path, lang_, 'LC_MESSAGES')
-            for fn in rosetta_settings.POFILENAMES:
+            for fn in POFILENAMES:
                 filename = os.path.join(dirname, fn)
                 if os.path.isfile(filename):
                     ret.add(os.path.abspath(filename))

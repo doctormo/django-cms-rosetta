@@ -15,7 +15,7 @@
 
 {% endblock %}
 
-{% block pagetitle %}{{block.super}} - {{rosetta_settings.MESSAGES_SOURCE_LANGUAGE_NAME}} - {{rosetta_i18n_lang_name}} ({{ rosetta_i18n_pofile.percent_translated|floatformat:0 }}%){% endblock %}
+{% block pagetitle %}{{block.super}} - {{MESSAGES_SOURCE_LANGUAGE_NAME}} - {{rosetta_i18n_lang_name}} ({{ rosetta_i18n_pofile.percent_translated|floatformat:0 }}%){% endblock %}
 
 {% block breadcumbs %}
     <div>
@@ -101,7 +101,7 @@
                             {% if main_language %}<td class="original">{{ message.main_lang|format_message|linebreaksbr }}</td>{% endif %}
                             <td class="translation">
                                 <textarea rows="{{message.msgid|format_message|lines_count}}" cols="40" name="m_{{message.md5hash}}" tabindex="{% increment tab_idx %}">{{message.msgstr}}</textarea>
-                                {% if rosetta_settings.ENABLE_TRANSLATION_SUGGESTIONS %}<a href="#" class="suggest">{% trans "suggest" %}</a>{% endif %}
+                                {% if ENABLE_TRANSLATION_SUGGESTIONS %}<a href="#" class="suggest">{% trans "suggest" %}</a>{% endif %}
                             </td>
                         {% endif %}
                             <td class="c">

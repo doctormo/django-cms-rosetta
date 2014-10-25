@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.template.defaultfilters import floatformat
 from django.test import TestCase
 from django.test.client import Client
-from rosetta.conf import settings as rosetta_settings
+from rosetta.settings import *
 from rosetta.signals import entry_changed, post_save
 import os
 import shutil
@@ -56,16 +56,16 @@ class RosettaTestCase(TestCase):
         settings.LANGUAGES = (('xx', 'dummy language'), ('fr_FR.utf8', 'French (France), UTF8'))
 
         self.__session_engine = settings.SESSION_ENGINE
-        self.__storage_class = rosetta_settings.STORAGE_CLASS
-        self.__require_auth = rosetta_settings.ROSETTA_REQUIRES_AUTH
+        self.__storage_class = STORAGE_CLASS
+        self.__require_auth = ROSETTA_REQUIRES_AUTH
 
         shutil.copy(self.dest_file, self.dest_file + '.orig')
 
     def tearDown(self):
         settings.LANGUAGES = self.__old_settings_languages
         settings.SESSION_ENGINE = self.__session_engine
-        rosetta_settings.STORAGE_CLASS = self.__storage_class
-        rosetta_settings.ROSETTA_REQUIRES_AUTH = self.__require_auth
+        STORAGE_CLASS = self.__storage_class
+        ROSETTA_REQUIRES_AUTH = self.__require_auth
         shutil.move(self.dest_file + '.orig', self.dest_file)
 
     def test_1_ListLoading(self):
@@ -162,13 +162,13 @@ class RosettaTestCase(TestCase):
 
     def test_6_ExcludedApps(self):
 
-        rosetta_settings.EXCLUDED_APPLICATIONS = ('rosetta',)
+        EXCLUDED_APPLICATIONS = ('rosetta',)
 
         r = self.client.get(reverse('rosetta-pick-file') + '?filter=third-party')
         r = self.client.get(reverse('rosetta-pick-file'))
         self.assertTrue('rosetta/locale/xx/LC_MESSAGES/django.po' not in str(r.content))
 
-        rosetta_settings.EXCLUDED_APPLICATIONS = ()
+        EXCLUDED_APPLICATIONS = ()
 
         r = self.client.get(reverse('rosetta-pick-file') + '?rosetta')
         self.assertTrue('rosetta/locale/xx/LC_MESSAGES/django.po' in str(r.content))
@@ -411,7 +411,7 @@ class RosettaTestCase(TestCase):
         r = self.client.get(reverse('rosetta-language-selection', args=('xx', 0, ), kwargs=dict()))
         r = self.client.get(reverse('rosetta-home'))
         self.assertTrue('m_bb9d8fe6159187b9ea494c1b313d23d4' in str(r.content))
-        rosetta_settings.POFILE_WRAP_WIDTH = 0
+        POFILE_WRAP_WIDTH = 0
         r = self.client.post(reverse('rosetta-home'), dict(m_bb9d8fe6159187b9ea494c1b313d23d4='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium.', _next='_next'))
         pofile_content = open(self.dest_file, 'r').read()
         self.assertTrue('felis eu pede mollis pretium."' in pofile_content)
@@ -443,7 +443,7 @@ class RosettaTestCase(TestCase):
             settings.SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
             # One: cache backend
-            rosetta_settings.STORAGE_CLASS = 'rosetta.storage.CacheRosettaStorage'
+            STORAGE_CLASS = 'rosetta.storage.CacheRosettaStorage'
 
             shutil.copy(os.path.normpath(os.path.join(self.curdir, './django.po.issue38gh.template')), self.dest_file)
 
@@ -466,7 +466,7 @@ class RosettaTestCase(TestCase):
 
             # Two, the cookie backend
             if self.django_version_minor < 6:
-                rosetta_settings.STORAGE_CLASS = 'rosetta.storage.SessionRosettaStorage'
+                STORAGE_CLASS = 'rosetta.storage.SessionRosettaStorage'
 
                 shutil.copy(os.path.normpath(os.path.join(self.curdir, './django.po.issue38gh.template')), self.dest_file)
 
@@ -481,7 +481,7 @@ class RosettaTestCase(TestCase):
                 self.assertFalse('m_9efd113f7919952523f06e0d88da9c54' in str(r.content))
 
     def test_21_concurrency_of_cache_backend(self):
-        rosetta_settings.STORAGE_CLASS = 'rosetta.storage.CacheRosettaStorage'
+        STORAGE_CLASS = 'rosetta.storage.CacheRosettaStorage'
         shutil.copy(os.path.normpath(os.path.join(self.curdir, './django.po.issue38gh.template')), self.dest_file)
 
         self.client.get(reverse('rosetta-pick-file') + '?filter=third-party')
@@ -588,7 +588,7 @@ class RosettaTestCase(TestCase):
             self.assertTrue('django.contrib.sessions.middleware.SessionMiddleware' in settings.MIDDLEWARE_CLASSES)
 
             settings.SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-            rosetta_settings.STORAGE_CLASS = 'rosetta.storage.SessionRosettaStorage'
+            STORAGE_CLASS = 'rosetta.storage.SessionRosettaStorage'
 
             try:
                 self.client.get(reverse('rosetta-pick-file') + '?filter=third-party')
@@ -597,8 +597,8 @@ class RosettaTestCase(TestCase):
                 pass
 
     def test_30_pofile_names(self):
-        POFILENAMES = rosetta_settings.POFILENAMES
-        rosetta_settings.POFILENAMES = ('pr44.po', )
+        POFILENAMES = POFILENAMES
+        POFILENAMES = ('pr44.po', )
 
         os.unlink(self.dest_file)
         destfile = os.path.normpath(os.path.join(self.curdir, '../locale/xx/LC_MESSAGES/pr44.po'))
@@ -614,7 +614,7 @@ class RosettaTestCase(TestCase):
         self.assertTrue('dummy language' in str(r.content))
 
         os.unlink(destfile)
-        rosetta_settings.POFILENAMES = POFILENAMES
+        POFILENAMES = POFILENAMES
 
 
 

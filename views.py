@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
@@ -9,12 +8,12 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
-from rosetta.conf import settings as rosetta_settings
 from polib import pofile
 from rosetta.poutil import find_pos, pagination_range, timestamp_with_timezone
 from rosetta.signals import entry_changed, post_save
 from rosetta.storage import get_storage
 from rosetta.access import can_translate
+from rosetta.settings import *
 
 import json
 import re
@@ -61,7 +60,7 @@ def home(request):
         rosetta_i18n_lang_bidi = rosetta_i18n_lang_code.split('-')[0] in settings.LANGUAGES_BIDI
         rosetta_i18n_write = storage.get('rosetta_i18n_write', True)
         if rosetta_i18n_write:
-            rosetta_i18n_pofile = pofile(rosetta_i18n_fn, wrapwidth=rosetta_settings.POFILE_WRAP_WIDTH)
+            rosetta_i18n_pofile = pofile(rosetta_i18n_fn, wrapwidth=POFILE_WRAP_WIDTH)
             for entry in rosetta_i18n_pofile:
                 entry.md5hash = hashlib.md5(
                     (six.text_type(entry.msgid) +
@@ -158,7 +157,7 @@ def home(request):
 
                     post_save.send(sender=None, language_code=rosetta_i18n_lang_code, request=request)
                     # Try auto-reloading via the WSGI daemon mode reload mechanism
-                    if rosetta_settings.WSGI_AUTO_RELOAD and \
+                    if WSGI_AUTO_RELOAD and \
                         'mod_wsgi.process_group' in request.environ and \
                         request.environ.get('mod_wsgi.process_group', None) and \
                         'SCRIPT_FILENAME' in request.environ and \
@@ -168,7 +167,7 @@ def home(request):
                             except OSError:
                                 pass
                     # Try auto-reloading via uwsgi daemon reload mechanism
-                    if rosetta_settings.UWSGI_AUTO_RELOAD:
+                    if UWSGI_AUTO_RELOAD:
                         try:
                             import uwsgi
                             # pretty easy right?
@@ -193,16 +192,16 @@ def home(request):
         if 'query' in request.REQUEST and request.REQUEST.get('query', '').strip():
             query = request.REQUEST.get('query').strip()
             rx = re.compile(re.escape(query), re.IGNORECASE)
-            paginator = Paginator([e for e in rosetta_i18n_pofile if not e.obsolete and rx.search(six.text_type(e.msgstr) + six.text_type(e.msgid) + u''.join([o[0] for o in e.occurrences]))], rosetta_settings.MESSAGES_PER_PAGE)
+            paginator = Paginator([e for e in rosetta_i18n_pofile if not e.obsolete and rx.search(six.text_type(e.msgstr) + six.text_type(e.msgid) + u''.join([o[0] for o in e.occurrences]))], MESSAGES_PER_PAGE)
         else:
             if rosetta_i18n_filter == 'untranslated':
-                paginator = Paginator(rosetta_i18n_pofile.untranslated_entries(), rosetta_settings.MESSAGES_PER_PAGE)
+                paginator = Paginator(rosetta_i18n_pofile.untranslated_entries(), MESSAGES_PER_PAGE)
             elif rosetta_i18n_filter == 'translated':
-                paginator = Paginator(rosetta_i18n_pofile.translated_entries(), rosetta_settings.MESSAGES_PER_PAGE)
+                paginator = Paginator(rosetta_i18n_pofile.translated_entries(), MESSAGES_PER_PAGE)
             elif rosetta_i18n_filter == 'fuzzy':
-                paginator = Paginator([e for e in rosetta_i18n_pofile.fuzzy_entries() if not e.obsolete], rosetta_settings.MESSAGES_PER_PAGE)
+                paginator = Paginator([e for e in rosetta_i18n_pofile.fuzzy_entries() if not e.obsolete], MESSAGES_PER_PAGE)
             else:
-                paginator = Paginator([e for e in rosetta_i18n_pofile if not e.obsolete], rosetta_settings.MESSAGES_PER_PAGE)
+                paginator = Paginator([e for e in rosetta_i18n_pofile if not e.obsolete], MESSAGES_PER_PAGE)
 
         if 'page' in request.GET and int(request.GET.get('page')) <= paginator.num_pages and int(request.GET.get('page')) > 0:
             page = int(request.GET.get('page'))
@@ -218,13 +217,13 @@ def home(request):
 
         rosetta_messages = paginator.page(page).object_list
         main_language = None
-        if rosetta_settings.MAIN_LANGUAGE and rosetta_settings.MAIN_LANGUAGE != rosetta_i18n_lang_code:
+        if MAIN_LANGUAGE and MAIN_LANGUAGE != rosetta_i18n_lang_code:
             for language in settings.LANGUAGES:
-                if language[0] == rosetta_settings.MAIN_LANGUAGE:
+                if language[0] == MAIN_LANGUAGE:
                     main_language = _(language[1])
                     break
 
-            fl = ("/%s/" % rosetta_settings.MAIN_LANGUAGE).join(rosetta_i18n_fn.split("/%s/" % rosetta_i18n_lang_code))
+            fl = ("/%s/" % MAIN_LANGUAGE).join(rosetta_i18n_fn.split("/%s/" % rosetta_i18n_lang_code))
             po = pofile(fl)
 
             for message in rosetta_messages:
@@ -253,7 +252,8 @@ def home(request):
             version=rosetta.get_version(True),
             ADMIN_MEDIA_PREFIX=ADMIN_MEDIA_PREFIX,
             ADMIN_IMAGE_DIR=ADMIN_IMAGE_DIR,
-            rosetta_settings=rosetta_settings,
+            MESSAGES_SOURCE_LANGUAGE_NAME=MESSAGES_SOURCE_LANGUAGE_NAME,
+            ENABLE_TRANSLATION_SUGGESTIONS=ENABLE_TRANSLATION_SUGGESTIONS,
             rosetta_i18n_lang_name=_(storage.get('rosetta_i18n_lang_name')),
             rosetta_i18n_lang_code=rosetta_i18n_lang_code,
             rosetta_i18n_lang_bidi=rosetta_i18n_lang_bidi,
@@ -347,7 +347,7 @@ def list_languages(request, do_session_warn=False):
         ADMIN_MEDIA_PREFIX = settings.ADMIN_MEDIA_PREFIX
     except AttributeError:
         ADMIN_MEDIA_PREFIX = settings.STATIC_URL + 'admin/'
-    do_session_warn = do_session_warn and 'SessionRosettaStorage' in rosetta_settings.STORAGE_CLASS and 'signed_cookies' in settings.SESSION_ENGINE
+    do_session_warn = do_session_warn and 'SessionRosettaStorage' in str(STORAGE_CLASS) and 'signed_cookies' in settings.SESSION_ENGINE
 
     return render_to_response('rosetta/languages.html', dict(
         version=rosetta.get_version(True),
