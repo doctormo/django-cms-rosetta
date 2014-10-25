@@ -9,15 +9,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
 from polib import pofile
-from rosetta.poutil import find_pos, pagination_range, timestamp_with_timezone
-from rosetta.signals import entry_changed, post_save
-from rosetta.storage import get_storage
-from rosetta.access import can_translate
-from rosetta.settings import *
+from .poutil import find_pos, pagination_range, timestamp_with_timezone
+from .signals import entry_changed, post_save
+from .storage import get_storage
+from .access import can_translate
+from .settings import *
 
 import json
 import re
-import rosetta
 import unicodedata
 import hashlib
 import os
@@ -144,7 +143,7 @@ def home(request):
                     request.user.email = getattr(request.user, 'email', 'anonymous@user.tld')
 
                     rosetta_i18n_pofile.metadata['Last-Translator'] = unicodedata.normalize('NFKD', u"%s %s <%s>" % (request.user.first_name, request.user.last_name, request.user.email)).encode('ascii', 'ignore')
-                    rosetta_i18n_pofile.metadata['X-Translated-Using'] = u"django-rosetta %s" % rosetta.get_version(False)
+                    rosetta_i18n_pofile.metadata['X-Translated-Using'] = u"django-rosetta %s" % VERSION
                     rosetta_i18n_pofile.metadata['PO-Revision-Date'] = timestamp_with_timezone()
                 except UnicodeDecodeError:
                     pass
@@ -249,7 +248,7 @@ def home(request):
             rosetta_last_save_error = False
 
         return render_to_response('rosetta/pofile.html', dict(
-            version=rosetta.get_version(True),
+            version=VERSION,
             ADMIN_MEDIA_PREFIX=ADMIN_MEDIA_PREFIX,
             ADMIN_IMAGE_DIR=ADMIN_IMAGE_DIR,
             MESSAGES_SOURCE_LANGUAGE_NAME=MESSAGES_SOURCE_LANGUAGE_NAME,
@@ -350,7 +349,7 @@ def list_languages(request, do_session_warn=False):
     do_session_warn = do_session_warn and 'SessionRosettaStorage' in str(STORAGE_CLASS) and 'signed_cookies' in settings.SESSION_ENGINE
 
     return render_to_response('rosetta/languages.html', dict(
-        version=rosetta.get_version(True),
+        version=VERSION,
         ADMIN_MEDIA_PREFIX=ADMIN_MEDIA_PREFIX,
         do_session_warn=do_session_warn,
         languages=languages,

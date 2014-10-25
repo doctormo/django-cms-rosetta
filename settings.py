@@ -1,4 +1,6 @@
 
+VERSION = '0.7.4'
+
 from django.conf import settings
 
 # Number of messages to display per page.
