@@ -9,8 +9,6 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
-from rosetta.utils.microsofttranslator import Translator, TranslateApiException
-
 from rosetta.conf import settings as rosetta_settings
 from polib import pofile
 from rosetta.poutil import find_pos, pagination_range, timestamp_with_timezone

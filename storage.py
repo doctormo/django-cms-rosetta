@@ -1,6 +1,5 @@
 from django.core.cache import get_cache
 from django.conf import settings
-from django.utils import importlib
 from django.core.exceptions import ImproperlyConfigured
 from rosetta.conf import settings as rosetta_settings
 import hashlib
@@ -8,6 +7,7 @@ import time
 import six
 import django
 
+from .utils import get_class_for
 
 cache = get_cache(rosetta_settings.ROSETTA_CACHE_NAME)
 
@@ -93,24 +93,17 @@ class CacheRosettaStorage(BaseRosettaStorage):
             self.delete('rosetta_cache_test')
 
     def get(self, key, default=None):
-        #print ('get', self._key_prefix + key)
         return cache.get(self._key_prefix + key, default)
 
     def set(self, key, val):
-        #print ('set', self._key_prefix + key)
         cache.set(self._key_prefix + key, val, 86400)
 
     def has(self, key):
-        #print ('has', self._key_prefix + key)
         return (self._key_prefix + key) in cache
 
     def delete(self, key):
-        #print ('del', self._key_prefix + key)
         cache.delete(self._key_prefix + key)
 
 
-def get_storage(request):
-    from rosetta.conf import settings
-    storage_module, storage_class = settings.STORAGE_CLASS.rsplit('.', 1)
-    storage_module = importlib.import_module(storage_module)
-    return getattr(storage_module, storage_class)(request)
+get_storage = get_class_for('STORAGE_CLASS', CacheRosettaStorage)
+
