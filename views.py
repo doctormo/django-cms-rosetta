@@ -8,8 +8,7 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
-from polib import pofile
-from .poutil import find_pos, pagination_range, timestamp_with_timezone
+from .poutil import find_pos, pagination_range, timestamp_with_timezone, pofile
 from .signals import entry_changed, post_save
 from .storage import get_storage
 from .access import can_translate
@@ -339,7 +338,7 @@ def list_languages(request, do_session_warn=False):
         languages.append(
             (language[0],
             _(language[1]),
-            sorted([(get_app_name(l), os.path.realpath(l), pofile(l)) for l in pos], key=lambda app: app[0]),
+            sorted([(get_app_name(l), os.path.realpath(l).replace(settings.PROJECT_PATH, '~'), pofile(l)) for l in pos], key=lambda app: app[0]),
             )
         )
     try:

@@ -4,6 +4,7 @@ from django.utils.importlib import import_module
 import types
 import settings
 
+
 def get_meta_variable(name, *args):
     """Returns a callable variable for the given setting"""
     variable = getattr(settings, name, *args)

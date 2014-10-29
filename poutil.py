@@ -5,6 +5,8 @@ import os
 
 from .settings import *
 
+from polib import POFile, pofile as pobase
+
 try:
     from django.utils import timezone
 except:
@@ -12,6 +14,18 @@ except:
 
 
 cache = get_cache(CACHE_NAME)
+
+class NewPoFile(POFile):
+    def progress(self):
+        return (
+          ('done', float(len(self.translated_entries())) / len(self) * 99),
+          ('fuzzy', float(len(self.fuzzy_entries())) / len(self) * 99),
+          ('obsolete', float(len(self.obsolete_entries()))  / len(self) * 99),
+        )
+
+def pofile(*args, **kwargs):
+    kwargs['klass'] = NewPoFile
+    return pobase(*args, **kwargs)
 
 
 def timestamp_with_timezone(dt=None):
@@ -34,20 +48,18 @@ def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False)
     """
     scans a couple possible repositories of gettext catalogs for the given
     language code
-
     """
-
     paths = []
 
     # project/locale
     parts = settings.SETTINGS_MODULE.split('.')
     project = __import__(parts[0], {}, {}, [])
-    abs_project_path = os.path.normpath(os.path.abspath(os.path.dirname(project.__file__)))
+    p_path = os.path.abspath(os.path.dirname(project.__file__))
+    abs_project_path = os.path.normpath(p_path)
     if project_apps:
-        if os.path.exists(os.path.abspath(os.path.join(os.path.dirname(project.__file__), 'locale'))):
-            paths.append(os.path.abspath(os.path.join(os.path.dirname(project.__file__), 'locale')))
-        if os.path.exists(os.path.abspath(os.path.join(os.path.dirname(project.__file__), '..', 'locale'))):
-            paths.append(os.path.abspath(os.path.join(os.path.dirname(project.__file__), '..', 'locale')))
+        for i in ('', '..'):
+            if os.path.exists(os.path.join(p_path, i, 'locale')):
+                paths.append(os.path.join(p_path, i, 'locale'))
 
     # django/locale
     if django_apps:
