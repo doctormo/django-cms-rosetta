@@ -16,11 +16,22 @@ except:
 cache = get_cache(CACHE_NAME)
 
 class NewPoFile(POFile):
+    @property
+    def filename(self):
+        return os.path.realpath(getattr(self, '_filename', 'UNKNOWN'))
+
+    @property
     def path(self):
-        f = getattr(self, 'filename', 'UNKNOWN')
+        f = self.filename
         if 'site-packages' in f:
             return '@' + f.split('site-packages')[-1]
         return os.path.realpath(f).replace(settings.PROJECT_PATH, '~')
+
+    @property
+    def name(self):
+        f = self.filename
+        return f.split("/locale")[0].split("/")[-1].replace('_', ' ') + (
+          'djangojs.po' in f and ' (Javascript)' or '')
 
     def progress(self):
         return (
@@ -29,10 +40,11 @@ class NewPoFile(POFile):
           ('obsolete', float(len(self.obsolete_entries()))  / len(self) * 99),
         )
 
+
 def pofile(pofile, *args, **kwargs):
     kwargs['klass'] = NewPoFile
     ret = pobase(pofile, *args, **kwargs)
-    ret.filename = pofile
+    ret._filename = pofile
     return ret
 
 

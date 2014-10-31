@@ -318,13 +318,10 @@ def list_languages(request, do_session_warn=False):
         languages.append(
             (language[0],
             _(language[1]),
-            sorted([(get_app_name(l), pofile(l)) for l in pos], key=lambda app: app[0]),
+            sorted([pofile(l) for l in pos], key=lambda app: app.name),
             )
         )
-    try:
-        ADMIN_MEDIA_PREFIX = settings.ADMIN_MEDIA_PREFIX
-    except AttributeError:
-        ADMIN_MEDIA_PREFIX = settings.STATIC_URL + 'admin/'
+    ADMIN_MEDIA_PREFIX = getattr(settings, 'ADMIN_MEDIA_PREFIX', settings.STATIC_URL + 'admin/')
     do_session_warn = do_session_warn and 'SessionRosettaStorage' in str(STORAGE_CLASS) and 'signed_cookies' in settings.SESSION_ENGINE
 
     return render_to_response('rosetta/languages.html', dict(
@@ -337,6 +334,7 @@ def list_languages(request, do_session_warn=False):
     ), context_instance=RequestContext(request))
 
 
+# MARKED FOR DELETION XXX
 def get_app_name(path):
     app = path.split("/locale")[0].split("/")[-1]
     return app
