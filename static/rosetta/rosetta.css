@@ -29,6 +29,9 @@ td.translation textarea {
   min-height: 25px;
   margin: 2px 0;
 }
+th.fuzzy {
+  width: 1%;
+}
 .rtl td.translation textarea {
   direction: rtl;
 }
@@ -115,6 +118,7 @@ div.module {
 }
 #toolbar {
   height: 20px;
+  padding: 7px !important;
 }
 #toolbar form {
   float: left;

@@ -8,7 +8,7 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
-from .poutil import find_pos, pagination_range, timestamp_with_timezone, pofile
+from .poutil import find_pos, pagination_range, timestamp_with_timezone, pofile, pofiles
 from .signals import entry_changed, post_save
 from .storage import get_storage
 from .access import can_translate
@@ -33,7 +33,7 @@ def home(request):
     query = ''
     if storage.has('rosetta_i18n_fn'):
         rosetta_i18n_fn = storage.get('rosetta_i18n_fn')
-        rosetta_i18n_app = get_app_name(rosetta_i18n_fn)
+        rosetta_i18n_app = 'XXX' #get_app_name(rosetta_i18n_fn)
         rosetta_i18n_lang_code = storage.get('rosetta_i18n_lang_code')
         rosetta_i18n_lang_bidi = rosetta_i18n_lang_code.split('-')[0] in settings.LANGUAGES_BIDI
         rosetta_i18n_write = storage.get('rosetta_i18n_write', True)
@@ -311,16 +311,11 @@ def list_languages(request, do_session_warn=False):
     django_apps = rosetta_i18n_catalog_filter in ('all', 'django')
     project_apps = rosetta_i18n_catalog_filter in ('all', 'project')
 
-    has_pos = False
     for language in settings.LANGUAGES:
         pos = find_pos(language[0], project_apps=project_apps, django_apps=django_apps, third_party_apps=third_party_apps)
-        has_pos = has_pos or len(pos)
-        languages.append(
-            (language[0],
-            _(language[1]),
-            sorted([pofile(l) for l in pos], key=lambda app: app.name),
-            )
-        )
+        if len(pos):
+            languages.append( (language[0], _(language[1]), pofiles(pos)) )
+
     ADMIN_MEDIA_PREFIX = getattr(settings, 'ADMIN_MEDIA_PREFIX', settings.STATIC_URL + 'admin/')
     do_session_warn = do_session_warn and 'SessionRosettaStorage' in str(STORAGE_CLASS) and 'signed_cookies' in settings.SESSION_ENGINE
 
@@ -329,15 +324,8 @@ def list_languages(request, do_session_warn=False):
         ADMIN_MEDIA_PREFIX=ADMIN_MEDIA_PREFIX,
         do_session_warn=do_session_warn,
         languages=languages,
-        has_pos=has_pos,
         rosetta_i18n_catalog_filter=rosetta_i18n_catalog_filter
     ), context_instance=RequestContext(request))
-
-
-# MARKED FOR DELETION XXX
-def get_app_name(path):
-    app = path.split("/locale")[0].split("/")[-1]
-    return app
 
 
 @never_cache
@@ -356,12 +344,13 @@ def lang_sel(request, langid, idx):
         third_party_apps = rosetta_i18n_catalog_filter in ('all', 'third-party')
         django_apps = rosetta_i18n_catalog_filter in ('all', 'django')
         project_apps = rosetta_i18n_catalog_filter in ('all', 'project')
-        file_ = sorted(find_pos(langid, project_apps=project_apps, django_apps=django_apps, third_party_apps=third_party_apps), key=get_app_name)[int(idx)]
+        
+        po = pofiles(find_pos(langid, project_apps=project_apps, django_apps=django_apps, third_party_apps=third_party_apps))[int(idx)]
 
         storage.set('rosetta_i18n_lang_code', langid)
         storage.set('rosetta_i18n_lang_name', six.text_type([l[1] for l in settings.LANGUAGES if l[0] == langid][0]))
-        storage.set('rosetta_i18n_fn', file_)
-        po = pofile(file_)
+        storage.set('rosetta_i18n_fn', po.filename)
+
         for entry in po:
             entry.md5hash = hashlib.new('md5',
                 (six.text_type(entry.msgid) +
@@ -371,7 +360,7 @@ def lang_sel(request, langid, idx):
 
         storage.set('rosetta_i18n_pofile', po)
         try:
-            os.utime(file_, None)
+            os.utime(po.filename, None)
             storage.set('rosetta_i18n_write', True)
         except OSError:
             storage.set('rosetta_i18n_write', False)

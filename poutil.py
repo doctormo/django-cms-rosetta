@@ -1,5 +1,8 @@
 from datetime import datetime
+
+from django.utils.translation import ugettext_lazy as _
 from django.core.cache import get_cache
+
 import django
 import os
 
@@ -14,6 +17,7 @@ except:
 
 
 cache = get_cache(CACHE_NAME)
+LANGS = dict(settings.LANGUAGES)
 
 class NewPoFile(POFile):
     @property
@@ -33,6 +37,14 @@ class NewPoFile(POFile):
         return f.split("/locale")[0].split("/")[-1].replace('_', ' ') + (
           'djangojs.po' in f and ' (Javascript)' or '')
 
+    @property
+    def lang(self):
+        return self.filename.split('/locale/', 1)[-1].split('/')[0]
+
+    @property
+    def language(self):
+        return _(LANGS.get(self.lang, 'Unknown'))
+
     def progress(self):
         return (
           ('done', float(len(self.translated_entries())) / len(self) * 99),
@@ -41,11 +53,15 @@ class NewPoFile(POFile):
         )
 
 
+
 def pofile(pofile, *args, **kwargs):
     kwargs['klass'] = NewPoFile
     ret = pobase(pofile, *args, **kwargs)
     ret._filename = pofile
     return ret
+
+def pofiles(pos):
+    return sorted([pofile(l) for l in pos], key=lambda app: app.name)
 
 
 def timestamp_with_timezone(dt=None):
