@@ -27,8 +27,7 @@
                 <thead>
                     <tr>
                         <th>{% trans "Application" %}</th>
-                        <th class="r">{% trans "Progress"%}</th>
-                        <th>{% trans "Progress" %}</th>
+                        <th colspan="3">{%trans "Progress" %}</th>
                         <th>{% trans "File" %}</th>
                     </tr>
                 </thead>
@@ -36,7 +35,8 @@
                     {% for po in pos %}
                     <tr class="{% cycle row1,row2 %}">
                         <td><a href="{% url 'rosetta-language-selection' lid forloop.counter0 %}{% if do_django %}?django{% endif %}{% if do_rosetta %}?rosetta{% endif %}">{{ po.name|title }}</a></td>
-                        <td class="ch-progress r">{{ po.lang }} {{ po.language }} - {{po.percent_translated|floatformat:0}}%</td>
+                        <td class="ch-total r">{{ po|length }}/{{ po.translated_entries|length }}</td>
+                        <td class="ch-progress r">{{po.percent_translated|floatformat:0}}%</td>
 
                         <td class="progress"><div title="Total: {{ po|length }}
 Done: {{ po.translated_entries|length }}
