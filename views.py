@@ -13,6 +13,7 @@ from .signals import entry_changed, post_save
 from .storage import get_storage
 from .access import can_translate
 from .settings import *
+from .utils import fix_nls
 
 import json
 import re
@@ -28,27 +29,6 @@ def home(request):
     """
     Displays a list of messages to be translated
     """
-
-    def fix_nls(in_, out_):
-        """Fixes submitted translations by filtering carriage returns and pairing
-        newlines at the begging and end of the translated string with the original
-        """
-        if 0 == len(in_) or 0 == len(out_):
-            return out_
-
-        if "\r" in out_ and "\r" not in in_:
-            out_ = out_.replace("\r", '')
-
-        if "\n" == in_[0] and "\n" != out_[0]:
-            out_ = "\n" + out_
-        elif "\n" != in_[0] and "\n" == out_[0]:
-            out_ = out_.lstrip()
-        if "\n" == in_[-1] and "\n" != out_[-1]:
-            out_ = out_ + "\n"
-        elif "\n" != in_[-1] and "\n" == out_[-1]:
-            out_ = out_.rstrip()
-        return out_
-
     storage = get_storage(request)
     query = ''
     if storage.has('rosetta_i18n_fn'):
@@ -338,7 +318,7 @@ def list_languages(request, do_session_warn=False):
         languages.append(
             (language[0],
             _(language[1]),
-            sorted([(get_app_name(l), os.path.realpath(l).replace(settings.PROJECT_PATH, '~'), pofile(l)) for l in pos], key=lambda app: app[0]),
+            sorted([(get_app_name(l), pofile(l)) for l in pos], key=lambda app: app[0]),
             )
         )
     try:

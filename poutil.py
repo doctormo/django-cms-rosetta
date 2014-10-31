@@ -16,6 +16,12 @@ except:
 cache = get_cache(CACHE_NAME)
 
 class NewPoFile(POFile):
+    def path(self):
+        f = getattr(self, 'filename', 'UNKNOWN')
+        if 'site-packages' in f:
+            return '@' + f.split('site-packages')[-1]
+        return os.path.realpath(f).replace(settings.PROJECT_PATH, '~')
+
     def progress(self):
         return (
           ('done', float(len(self.translated_entries())) / len(self) * 99),
@@ -23,9 +29,11 @@ class NewPoFile(POFile):
           ('obsolete', float(len(self.obsolete_entries()))  / len(self) * 99),
         )
 
-def pofile(*args, **kwargs):
+def pofile(pofile, *args, **kwargs):
     kwargs['klass'] = NewPoFile
-    return pobase(*args, **kwargs)
+    ret = pobase(pofile, *args, **kwargs)
+    ret.filename = pofile
+    return ret
 
 
 def timestamp_with_timezone(dt=None):
