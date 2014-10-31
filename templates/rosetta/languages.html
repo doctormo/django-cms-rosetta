@@ -1,5 +1,5 @@
 {% extends "rosetta/base.html" %}
-{% load i18n %}
+{% load i18n sekizai_tags %}
 {% load url from future %}
 
 {% block pagetitle %}{{block.super}} - {% trans "Language selection" %}{% endblock %}
@@ -21,56 +21,6 @@
 
     {% if has_pos %}
 
-<style>
-td.progress {
-  width: 310px;
-}
-td.progress div {
-  position: relative;
-  font-size: 0px;
-  padding-right: 2px;
-  height: 22px;
-  background-color: #abb2bc;
-  border-radius: 22px;
-  background: linear-gradient(#9da5b0 0%, #b6bcc6 100%);
-  box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 0px 0px #FFF;
-  display: block;
-  width: 300px;
-}
-td.progress div span:first-child {
-  border-top-left-radius: 22px;
-  border-bottom-left-radius: 22px;
-  border-left: 1px solid #4c8932;
-}
-td.progress div span:last-child {
-  border-top-right-radius: 22px;
-  border-bottom-right-radius: 22px;
-  border-right: 1px solid #4c8932;
-}
-td.progress div span {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  height: 20px;
-  background-color: #74d04c;
-  box-shadow: inset 0px 1px 0px 0px #dbf383, inset 0px -1px 1px #58c43a;
-  border-bottom: 1px solid #4c8932;
-  border-top: 1px solid #4c8932;
-}
-td.progress div .done {
-  background-color: #74d04c;
-}
-td.progress div .fuzzy {
-  background-color: #d0ba4c;
-  border-color: #897032;
-  box-shadow: inset 0px 1px 0px 0px #f3cf83, inset 0px -1px 1px #c4a23a;
-}
-td.progress div .obsolete {
-  background-color: #d0834c;
-  border-color: #894932;
-  box-shadow: inset 0px 1px 0px 0px #f38383, inset 0px -1px 1px #c43a3a;
-}
-</style>
 
     {% for lid,language,pos in languages %}
     {% if pos %}
@@ -87,7 +37,7 @@ td.progress div .obsolete {
                     </tr>
                 </thead>
                 <tbody>
-                    {% for app,path,po in pos %}
+                    {% for app,po in pos %}
                     <tr class="{% cycle row1,row2 %}">
                         <td><a href="{% url 'rosetta-language-selection' lid forloop.counter0 %}{% if do_django %}?django{% endif %}{% if do_rosetta %}?rosetta{% endif %}">{{ app|title }}</a></td>
                         <td class="ch-progress r">{{po.percent_translated|floatformat:2}}%</td>
@@ -99,7 +49,7 @@ td.progress div .obsolete {
                             {% endif %}
                           {% endfor %}
                         </div></td>
-                        <td class="hint">{{ path }}</td>
+                        <td class="hint">{{ po.path }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

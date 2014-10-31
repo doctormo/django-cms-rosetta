@@ -1,0 +1,175 @@
+#user-tools p span {
+  margin-left: 2em;
+}
+table {
+  width: 100%;
+}
+td.translation label {
+  font-size: 95%;
+}
+td.translation textarea,td.original {
+  font-size: 110%;
+}
+td.translation,td.original {
+  width: 30%;
+}
+td.original .plural-container {
+  position: relative;
+}
+td.original .context,td.original .message {
+  display: block;
+}
+td.original .context {
+  margin-top: 2em;
+  color: #bbb;
+  font-size: 90%;
+}
+td.translation textarea {
+  width: 98.5%;
+  min-height: 25px;
+  margin: 2px 0;
+}
+.rtl td.translation textarea {
+  direction: rtl;
+}
+.plural span {
+  display: block;
+  position: absolute;
+  margin: 2px 0;
+}
+td.location code,td.location a {
+  font-size: 95%;
+  display: block;
+}
+td.location code.hide {
+  display: none;
+}
+.submit-row {
+  margin-bottom: 0;
+}
+li.nobubble,li.nobubble:hover {
+  background-image: none;
+}
+.object-tools li.active,.object-tools li.active a {
+  color: #FF0;
+}
+p.paginator span.space {
+  margin: 0 .5em;
+}
+.paginator {
+  text-align: left;
+  border: none;
+  background: transparent;
+}
+.paginator strong {
+  margin-left: 1em;
+}
+th.r,td.r {
+  text-align: right;
+}
+th.c,td.c {
+  text-align: center;
+}
+td,td {
+  vertical-align: middle;
+}
+td.original code {
+  font-size: 90%;
+  padding: 0 1px;
+}
+tr.row2 td.original code {
+  background-color: #FFB2A5;
+  padding: 0 .3em;
+}
+tr.row1 td.original code {
+  background-color: #FFB2A5;
+}
+.alert {
+  font-weight: 700;
+  margin-left: 1em;
+  color: red;
+  background: transparent url({{ADMIN_MEDIA_PREFIX}}img/admin/icon_alert.gif) 5px .3em no-repeat;
+  padding: 4px 5px 4px 25px;
+}
+p.errornote {
+  margin-top: .4em;
+}
+#footer {
+  clear: both;
+  color: #999;
+  font-size: 9px;
+  text-align: left;
+  margin: 0 6px;
+}
+#changelist table tbody td:first-child,#changelist table thead th:first-child {
+  text-align: left;
+}
+td.hint {
+  color: #777;
+}
+div.module {
+  margin-bottom: 20px;
+}
+.checkall {
+  cursor: pointer;
+}
+#toolbar {
+  height: 20px;
+}
+#toolbar form {
+  float: left;
+}
+#changelist table thead th {
+  padding: 2px 5px;
+}
+p.paginator input,#toolbar #translate-all {
+  float: right;
+}
+td.progress {
+  width: 310px;
+}
+td.progress div {
+  position: relative;
+  font-size: 0px;
+  padding-right: 2px;
+  height: 22px;
+  background-color: #abb2bc;
+  border-radius: 22px;
+  background: linear-gradient(#9da5b0 0%, #b6bcc6 100%);
+  box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 0px 0px #FFF;
+  display: block;
+  width: 300px;
+}
+td.progress div span:first-child {
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+  border-left: 1px solid #4c8932;
+}
+td.progress div span:last-child {
+  border-top-right-radius: 22px;
+  border-bottom-right-radius: 22px;
+  border-right: 1px solid #4c8932;
+}
+td.progress div span {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  height: 20px;
+  background-color: #74d04c;
+  box-shadow: inset 0px 1px 0px 0px #dbf383, inset 0px -1px 1px #58c43a;
+  border-bottom: 1px solid #4c8932;
+  border-top: 1px solid #4c8932;
+}
+td.progress div .done {
+  background-color: #74d04c;
+}
+td.progress div .fuzzy {
+  background-color: #d0ba4c;
+  border-color: #897032;
+  box-shadow: inset 0px 1px 0px 0px #f3cf83, inset 0px -1px 1px #c4a23a;
+}
+td.progress div .obsolete {
+  background-color: #d0834c;
+  border-color: #894932;
+  box-shadow: inset 0px 1px 0px 0px #f38383, inset 0px -1px 1px #c43a3a;
+}
