@@ -213,12 +213,6 @@ def home(request):
                 page_range = pagination_range(1, paginator.num_pages, page)
             else:
                 page_range = range(1, 1 + paginator.num_pages)
-        try:
-            ADMIN_MEDIA_PREFIX = settings.ADMIN_MEDIA_PREFIX
-            ADMIN_IMAGE_DIR = ADMIN_MEDIA_PREFIX + 'img/admin/'
-        except AttributeError:
-            ADMIN_MEDIA_PREFIX = settings.STATIC_URL + 'admin/'
-            ADMIN_IMAGE_DIR = ADMIN_MEDIA_PREFIX + 'img/'
 
         if storage.has('rosetta_last_save_error'):
             storage.delete('rosetta_last_save_error')
@@ -228,8 +222,6 @@ def home(request):
 
         return render_to_response('rosetta/pofile.html', dict(
             version=VERSION,
-            ADMIN_MEDIA_PREFIX=ADMIN_MEDIA_PREFIX,
-            ADMIN_IMAGE_DIR=ADMIN_IMAGE_DIR,
             MESSAGES_SOURCE_LANGUAGE_NAME=MESSAGES_SOURCE_LANGUAGE_NAME,
             ENABLE_TRANSLATION_SUGGESTIONS=ENABLE_TRANSLATION_SUGGESTIONS,
             rosetta_i18n_lang_name=_(storage.get('rosetta_i18n_lang_name')),
@@ -316,12 +308,10 @@ def list_languages(request, do_session_warn=False):
         if len(pos):
             languages.append( (language[0], _(language[1]), pofiles(pos)) )
 
-    ADMIN_MEDIA_PREFIX = getattr(settings, 'ADMIN_MEDIA_PREFIX', settings.STATIC_URL + 'admin/')
     do_session_warn = do_session_warn and 'SessionRosettaStorage' in str(STORAGE_CLASS) and 'signed_cookies' in settings.SESSION_ENGINE
 
     return render_to_response('rosetta/languages.html', dict(
         version=VERSION,
-        ADMIN_MEDIA_PREFIX=ADMIN_MEDIA_PREFIX,
         do_session_warn=do_session_warn,
         languages=languages,
         rosetta_i18n_catalog_filter=rosetta_i18n_catalog_filter
@@ -368,7 +358,6 @@ def lang_sel(request, langid, idx):
         return HttpResponseRedirect(reverse('rosetta-home'))
 
 
-@user_passes_test(lambda user: can_translate(user), settings.LOGIN_URL)
 def translate_text(request):
     language_from = request.GET.get('from', None)
     language_to = request.GET.get('to', None)
