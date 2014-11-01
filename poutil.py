@@ -6,6 +6,7 @@ from django.core.cache import get_cache
 import django
 import os
 
+from .utils import *
 from .settings import *
 
 from polib import POFile, pofile as pobase
@@ -15,8 +16,6 @@ try:
 except:
     timezone = None
 
-
-cache = get_cache(CACHE_NAME)
 LANGS = dict(settings.LANGUAGES)
 
 class NewPoFile(POFile):
@@ -33,8 +32,8 @@ class NewPoFile(POFile):
 
     @property
     def name(self):
-        f = self.filename
-        return f.split("/locale")[0].split("/")[-1].replace('_', ' ') + (
+        f = self.filename.replace('/locale', '')
+        return f.split("/")[-4].replace('_', ' ') + (
           'djangojs.po' in f and ' (Javascript)' or '')
 
     @property
@@ -80,7 +79,30 @@ def timestamp_with_timezone(dt=None):
     return dt.strftime("%Y-%m-%d %H:%M%z")
 
 
-def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False):
+class Mode(list):
+    """Controls the categorisation of po files and the selectable mode to
+       filter for them"""
+    def __init__(self, value):
+        self.value = value
+        self.append('all')
+
+    def is_(self, b):
+        if b not in self:
+            self.append( b )
+        return self.value in (b, 'all')
+
+    def __eq__(self, b):
+        return b == self.value
+
+
+@p_cache(60 * 60, 'rosetta_django_paths', list)
+def django_dirs():
+    for root, dirnames, filename in os.walk(os.path.abspath(os.path.dirname(django.__file__))):
+        if 'locale' in dirnames:
+            yield os.path.join(root, 'locale')
+
+
+def find_pos(lang, mode):
     """
     scans a couple possible repositories of gettext catalogs for the given
     language code
@@ -92,22 +114,18 @@ def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False)
     project = __import__(parts[0], {}, {}, [])
     p_path = os.path.abspath(os.path.dirname(project.__file__))
     abs_project_path = os.path.normpath(p_path)
-    if project_apps:
-        for i in ('', '..'):
-            if os.path.exists(os.path.join(p_path, i, 'locale')):
-                paths.append(os.path.join(p_path, i, 'locale'))
+    if mode.is_('project'):
+        paths += [os.path.join(p_path, 'locale'), os.path.join(p_path, '..', 'locale')]
+        paths += list(getattr(settings, 'LOCALE_PATHS', ()))
+
+    # extra/locale
+    if mode.is_('extra'):
+        paths += list(EXTRA_PATHS)
 
     # django/locale
-    if django_apps:
-        django_paths = cache.get('rosetta_django_paths')
-        if django_paths is None:
-            django_paths = []
-            for root, dirnames, filename in os.walk(os.path.abspath(os.path.dirname(django.__file__))):
-                if 'locale' in dirnames:
-                    django_paths.append(os.path.join(root, 'locale'))
-                    continue
-            cache.set('rosetta_django_paths', django_paths, 60 * 60)
-        paths = paths + django_paths
+    if mode.is_('django'):
+        paths += django_dirs()
+
     # settings
     for localepath in settings.LOCALE_PATHS:
         if os.path.isdir(localepath):
@@ -126,17 +144,16 @@ def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False)
         apppath = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(app.__file__), 'locale')))
 
         # django apps
-        if 'contrib' in apppath and 'django' in apppath and not django_apps:
+        if 'contrib' in apppath and 'django' in apppath and not mode.is_('django'):
             continue
 
         # third party external
-        if not third_party_apps and abs_project_path not in apppath:
+        if not mode.is_('third-party') and abs_project_path not in apppath:
             continue
 
         # local apps
-        if not project_apps and abs_project_path in apppath:
+        if not mode.is_('project') and abs_project_path in apppath:
             continue
-
 
         if os.path.isdir(apppath):
             paths.append(apppath)
@@ -153,6 +170,8 @@ def find_pos(lang, project_apps=True, django_apps=False, third_party_apps=False)
     paths = map(os.path.normpath, paths)
     paths = list(set(paths))
     for path in paths:
+        if not os.path.isdir(path):
+            continue
         for lang_ in langs:
             dirname = os.path.join(path, lang_, 'LC_MESSAGES')
             for fn in POFILENAMES:

@@ -7,11 +7,14 @@ table {
 td.translation label {
   font-size: 95%;
 }
-td.translation textarea,td.original {
+td.translation textarea,
+td.original {
   font-size: 110%;
 }
-td.translation,td.original {
+td.translation,
+td.original {
   width: 30%;
+  word-break: break-all;
 }
 td.original .plural-container {
   position: relative;
@@ -29,7 +32,8 @@ td.translation textarea {
   min-height: 25px;
   margin: 2px 0;
 }
-th.fuzzy {
+th.fuzzy,
+th.occur {
   width: 1%;
 }
 .rtl td.translation textarea {

@@ -8,7 +8,7 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
-from .poutil import find_pos, pagination_range, timestamp_with_timezone, pofile, pofiles
+from .poutil import find_pos, pagination_range, timestamp_with_timezone, pofile, pofiles, Mode
 from .signals import entry_changed, post_save
 from .storage import get_storage
 from .access import can_translate
@@ -292,19 +292,12 @@ def list_languages(request, do_session_warn=False):
     languages = []
 
     if 'filter' in request.GET:
-        if request.GET.get('filter') in ('project', 'third-party', 'django', 'all'):
-            filter_ = request.GET.get('filter')
-            storage.set('rosetta_i18n_catalog_filter', filter_)
-            return HttpResponseRedirect(reverse('rosetta-pick-file'))
+        storage.set('rosetta_i18n_catalog_filter', request.GET.get('filter'))
+        return HttpResponseRedirect(reverse('rosetta-pick-file'))
 
-    rosetta_i18n_catalog_filter = storage.get('rosetta_i18n_catalog_filter', 'project')
-
-    third_party_apps = rosetta_i18n_catalog_filter in ('all', 'third-party')
-    django_apps = rosetta_i18n_catalog_filter in ('all', 'django')
-    project_apps = rosetta_i18n_catalog_filter in ('all', 'project')
-
+    filter_mode = Mode(storage.get('rosetta_i18n_catalog_filter', 'project'))
     for language in settings.LANGUAGES:
-        pos = find_pos(language[0], project_apps=project_apps, django_apps=django_apps, third_party_apps=third_party_apps)
+        pos = find_pos(language[0], mode=filter_mode)
         if len(pos):
             languages.append( (language[0], _(language[1]), pofiles(pos)) )
 
@@ -314,7 +307,7 @@ def list_languages(request, do_session_warn=False):
         version=VERSION,
         do_session_warn=do_session_warn,
         languages=languages,
-        rosetta_i18n_catalog_filter=rosetta_i18n_catalog_filter
+        filter_mode=filter_mode,
     ), context_instance=RequestContext(request))
 
 
@@ -328,14 +321,7 @@ def lang_sel(request, langid, idx):
     if langid not in [l[0] for l in settings.LANGUAGES]:
         raise Http404
     else:
-
-        rosetta_i18n_catalog_filter = storage.get('rosetta_i18n_catalog_filter', 'project')
-
-        third_party_apps = rosetta_i18n_catalog_filter in ('all', 'third-party')
-        django_apps = rosetta_i18n_catalog_filter in ('all', 'django')
-        project_apps = rosetta_i18n_catalog_filter in ('all', 'project')
-        
-        po = pofiles(find_pos(langid, project_apps=project_apps, django_apps=django_apps, third_party_apps=third_party_apps))[int(idx)]
+        po = pofiles(find_pos(langid, mode=Mode(storage.get('rosetta_i18n_catalog_filter', 'project'))))[int(idx)]
 
         storage.set('rosetta_i18n_lang_code', langid)
         storage.set('rosetta_i18n_lang_name', six.text_type([l[1] for l in settings.LANGUAGES if l[0] == langid][0]))

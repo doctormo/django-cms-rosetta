@@ -38,6 +38,7 @@
         <li {% if rosetta_i18n_filter == 'fuzzy' %}class="active"{% endif %}><a href="?filter=fuzzy">{% trans "Fuzzy only" %}</a></li>
         <li {% if rosetta_i18n_filter == 'all' %}class="active"{% endif %}><a href="?filter=all">{% trans "All" %}</a></li>
     </ul>
+
     <div id="changelist" class="module{% if rosetta_i18n_lang_bidi %} rtl{% endif %}">
         <div id="toolbar">
             <form id="changelist-search" action="" method="post">
@@ -59,7 +60,7 @@
                         {% if main_language %}<th>{{ main_language }}</th>{% endif %}
                         <th>{{ rosetta_i18n_lang_name }}</th>
                         <th class="c fuzzy"><span class="checkall">[-]</span> {% trans "Fuzzy" %}</th>
-                        <th>{% trans "Occurrences(s)" %}</th>
+                        <th class="c occur">{% trans "Occurrences(s)" %}</th>
                     </tr>
                 </thead>
                 <tbody>

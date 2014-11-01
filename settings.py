@@ -40,6 +40,7 @@ CACHE_NAME = 'rosetta' in settings.CACHES and 'rosetta' or 'default'
 # Set this to False at your own risk
 REQUIRES_AUTH = True
 
+EXTRA_PATHS = ()
 
 # Get all our overloaded settings and all of django's globals
 for (name, default) in locals().items():

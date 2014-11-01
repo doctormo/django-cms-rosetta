@@ -4,6 +4,9 @@ from django.utils.importlib import import_module
 import types
 import settings
 
+from django.core.cache import get_cache
+cache = get_cache(settings.CACHE_NAME)
+
 
 def get_meta_variable(name, *args):
     """Returns a callable variable for the given setting"""
@@ -24,6 +27,19 @@ def get_class_for(name, *args):
     if type(variable) is types.ClassType:
         raise AttributeError("%s isn't a callable variable!" % variable)
     return variable
+
+def nop(v):
+    return v
+
+def p_cache(time_limit, key=None, kind=nop):
+    def _outer(f):
+        _key = key or f.__name__
+        def _inner(*args, **kwargs):
+            if not cache.get(_key):
+                cache.set(key, kind(f(*args, **kwargs)), time_limit)
+            return cache.get(_key)
+        return _inner
+    return _outer
 
 def fix_nls(in_, out_):
     """Fixes submitted translations by filtering carriage returns and pairing
