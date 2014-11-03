@@ -1,7 +1,10 @@
 
-VERSION = '0.7.4'
+VERSION = '0.8.1'
 
-from django.conf import settings
+try:
+    from django.conf import settings
+except ImportError:
+    settings = {}
 
 # Number of messages to display per page.
 MESSAGES_PER_PAGE = 10
@@ -34,7 +37,7 @@ STORAGE_CLASS = None
 # Allow overriding of the default filenames, you mostly won't need to change this
 POFILENAMES = ('django.po', 'djangojs.po')
 
-CACHE_NAME = 'rosetta' in settings.CACHES and 'rosetta' or 'default'
+CACHE_NAME = 'rosetta' in getattr(settings, 'CACHES', {}) and 'rosetta' or 'default'
 
 # Require users to be authenticated (and Superusers or in group "translators").
 # Set this to False at your own risk

@@ -1,0 +1,37 @@
+IDEA:
+
+djangocms-rosetta - Translate your CMS content via POT files
+
+Takes pages of content:
+
+ 1. Create TranslatedContentPlugin
+  a. Takes the english version of the site
+  b. Generates a list of translatable messages
+  c. Translates them with cache into a page for this language
+  
+ 2. Lists all pages
+  a. Fill in all empty page*language slots with TranslatedContentPlugin
+  b. Generate a list of translatable messages (see 1b)
+  c. Generate whole pot file for translation
+  d. Generate mo file (rosetta should handle this)
+  e. Make sure this is available for translations
+  f. Translate titles, menus of all pages, regardless.
+
+from cms.models import Page
+
+page = Page.objects.all()[...]
+
+draft_page = page.get_draft_object()
+published_page = page.get_public_object()
+list[str] = page.get_languages()
+
+str = page.get_page_title(lang)
+str = page.get_title(lang)
+str = page.get_menu_title(lang)
+str = page.get_meta_description(lang)
+bool = page.is_published(lang)
+
+d = [ d.get_plugin_instance()[0] for c in b.placeholders.all() for d in c.get_plugins('en') ]
+
+p = d[0].get_plugin_class_instance()
+(i, p) = d[0].get_plugin_instance()

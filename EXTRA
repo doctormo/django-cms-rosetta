@@ -1,0 +1,5 @@
+
+ * Needs to copy the po file from english to other empty languages when needed.
+ * Needs to backup translations where available.
+ * Could use haystack to index for search instead of manual search
+
