@@ -21,12 +21,6 @@
         </li>
     </ul>
 
-  {% if language == language_source %}
-    <div class="module">
-      <h2>{% trans "Total Translation Statistics" %}</h2>
-      
-    </div>
-  {% else %}
     <div class="module">
       <h2>{% trans "All Applications" %}</h2>
       <table cellspacing="0">
@@ -59,5 +53,4 @@ Obsolete: {{ po.obsolete_entries|length }}">
         </tbody>
       </table>
     </div>
-  {% endif %}
 {% endblock %}
