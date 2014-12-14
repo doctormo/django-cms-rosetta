@@ -1,34 +1,110 @@
-from django.contrib.auth.decorators import user_passes_test
-from django.core.paginator import Paginator
-from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.utils.encoding import iri_to_uri
-from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.cache import never_cache
+#
+# Copyright (C) 2014 Martin Owens <doctormo@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
 
-from .poutil import find_pos, pagination_range, timestamp_with_timezone, pofile, pofiles, Mode
-from .signals import entry_changed, post_save
-from .storage import get_storage
-from .access import can_translate
-from .settings import *
-from .utils import fix_nls
+#from django.contrib.auth.decorators import user_passes_test
+#from django.core.paginator import Paginator
+#from django.core.urlresolvers import reverse
+#from django.http import Http404, HttpResponseRedirect, HttpResponse
+#from django.shortcuts import render_to_response
+#from django.template import RequestContext
+#from django.utils.encoding import iri_to_uri
+#from django.utils.translation import ugettext_lazy as _
+#from django.views.decorators.cache import never_cache
 
-import json
-import re
-import unicodedata
-import hashlib
-import os
-import six
+#from .signals import entry_changed, post_save
+#from .storage import get_storage
+#from .access import can_translate
+#from .settings import *
+#from .utils import fix_nls
+
+#import json
+#import re
+#import unicodedata
+#import hashlib
+#import os
+#import six
+
+from django.views.generic.base import TemplateView
+from django.shortcuts import redirect
+
+from .mixins import TranslatorMixin
+from request_tree import data_tree
+
+class List(TemplateView, TranslatorMixin):
+    template_name = 'rosetta/list.html'
+
+    def get_context_data(self, **data):
+        data = TranslatorMixin.get_context_data(self, **data)
+        objects = self.locales
+        if 'kind' in self.kwargs:
+            data['kind'] = self.kwargs['kind']
+            objects = objects[self.kwargs['kind']]
+        data['objects'] = objects[self.language]
+        return data
+
+class Item(TemplateView, TranslatorMixin):
+    template_name = 'rosetta/item.html'
+
+    @data_tree
+    def post(self, data, request, *args, **kwargs):
+        """Save Data"""
+        for (md5hash, datum) in data.items():
+            if isinstance(datum, dict) and '5msg' in datum:
+                self.pofile.update_entry(md5hash, **datum)
+            #entry = self.pofile.find(md5hash, 'md5hash')
+            #if not entry or 'msg' not in datum:
+            #    continue
+            #entry.set_msg(datum['msg'])
+            #entry.set_flag('fuzzy', datum.get('fuzzy', 0))
+        if 'page' in request.POST:
+            request.page = int(request.POST['page'])
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+        return redirect('rosetta')
+
+    @property
+    def pofile(self):
+        return self.locales[self.kwargs['kind']][self.kwargs['page']][self.language]
+
+    def get_context_data(self, **data):
+        data = TranslatorMixin.get_context_data(self, **data)
+        data['pofile'] = self.pofile
+        data['page'] = self.request.page
+        return data
 
 
+class Download(Item):
+    def dispatch(self):
+        filename = "%s" % (self.kwargs['kind'], self.kwargs['page'], self.language)
+        with open(self.pofile.fname, 'r') as fhl:
+            response = HttpResponse(fhl.read())
+        response['Content-Disposition'] = 'attachment; filename=%s.po' % filename
+        response['Content-Type'] = 'text/x-gettext-translation'
+        return response
+
+class Upload(Item):
+    def post(self):
+        pass # Upload new po file replacement
+
+"""
 @never_cache
 @user_passes_test(lambda user: can_translate(user), settings.LOGIN_URL)
-def home(request):
-    """
-    Displays a list of messages to be translated
-    """
+def messages(request):
+    "Displays a list of messages to be translated"
     storage = get_storage(request)
     query = ''
     if storage.has('rosetta_i18n_fn'):
@@ -58,60 +134,6 @@ def home(request):
         rosetta_i18n_filter = storage.get('rosetta_i18n_filter', 'all')
 
         if '_next' in request.POST:
-            rx = re.compile(r'^m_([0-9a-f]+)')
-            rx_plural = re.compile(r'^m_([0-9a-f]+)_([0-9]+)')
-            file_change = False
-            for key, value in request.POST.items():
-                md5hash = None
-                plural_id = None
-
-                if rx_plural.match(key):
-                    md5hash = str(rx_plural.match(key).groups()[0])
-                    # polib parses .po files into unicode strings, but
-                    # doesn't bother to convert plural indexes to int,
-                    # so we need unicode here.
-                    plural_id = six.text_type(rx_plural.match(key).groups()[1])
-
-                    # Above no longer true as of Polib 1.0.4
-                    if plural_id and plural_id.isdigit():
-                        plural_id = int(plural_id)
-
-                elif rx.match(key):
-                    md5hash = str(rx.match(key).groups()[0])
-
-                if md5hash is not None:
-                    entry = rosetta_i18n_pofile.find(md5hash, 'md5hash')
-                    # If someone did a makemessage, some entries might
-                    # have been removed, so we need to check.
-                    if entry:
-                        old_msgstr = entry.msgstr
-                        if plural_id is not None:
-                            #plural_string = fix_nls(entry.msgstr_plural[plural_id], value)
-                            plural_string = fix_nls(entry.msgid_plural, value)
-                            entry.msgstr_plural[plural_id] = plural_string
-                        else:
-                            entry.msgstr = fix_nls(entry.msgid, value)
-
-                        is_fuzzy = bool(request.POST.get('f_%s' % md5hash, False))
-                        old_fuzzy = 'fuzzy' in entry.flags
-
-                        if old_fuzzy and not is_fuzzy:
-                            entry.flags.remove('fuzzy')
-                        elif not old_fuzzy and is_fuzzy:
-                            entry.flags.append('fuzzy')
-
-                        file_change = True
-
-                        if old_msgstr != value or old_fuzzy != is_fuzzy:
-                            entry_changed.send(sender=entry,
-                                               user=request.user,
-                                               old_msgstr=old_msgstr,
-                                               old_fuzzy=old_fuzzy,
-                                               pofile=rosetta_i18n_fn,
-                                               language_code=rosetta_i18n_lang_code,
-                                               )
-
-                    else:
                         storage.set('rosetta_last_save_error', True)
 
             if file_change and rosetta_i18n_write:
@@ -246,48 +268,15 @@ def home(request):
 
 @never_cache
 @user_passes_test(lambda user: can_translate(user), settings.LOGIN_URL)
-def download_file(request):
-    import zipfile
-    storage = get_storage(request)
-    # original filename
-    rosetta_i18n_fn = storage.get('rosetta_i18n_fn', None)
-    # in-session modified catalog
-    rosetta_i18n_pofile = storage.get('rosetta_i18n_pofile', None)
-    # language code
-    rosetta_i18n_lang_code = storage.get('rosetta_i18n_lang_code', None)
-
-    if not rosetta_i18n_lang_code or not rosetta_i18n_pofile or not rosetta_i18n_fn:
-        return HttpResponseRedirect(reverse('rosetta-home'))
-    try:
-        if len(rosetta_i18n_fn.split('/')) >= 5:
-            offered_fn = '_'.join(rosetta_i18n_fn.split('/')[-5:])
-        else:
-            offered_fn = rosetta_i18n_fn.split('/')[-1]
-        po_fn = str(rosetta_i18n_fn.split('/')[-1])
-        mo_fn = str(po_fn.replace('.po', '.mo'))  # not so smart, huh
-        zipdata = six.BytesIO()
-        zipf = zipfile.ZipFile(zipdata, mode="w")
-        zipf.writestr(po_fn, six.text_type(rosetta_i18n_pofile).encode("utf8"))
-        zipf.writestr(mo_fn, rosetta_i18n_pofile.to_binary())
-        zipf.close()
-        zipdata.seek(0)
-
-        response = HttpResponse(zipdata.read())
-        response['Content-Disposition'] = 'attachment; filename=%s.%s.zip' % (offered_fn, rosetta_i18n_lang_code)
-        response['Content-Type'] = 'application/x-zip'
-        return response
-
-    except Exception:
-        return HttpResponseRedirect(reverse('rosetta-home'))
 
 
 @never_cache
 @user_passes_test(lambda user: can_translate(user), settings.LOGIN_URL)
 def list_languages(request, do_session_warn=False):
-    """
+    "
     Lists the languages for the current project, the gettext catalog files
     that can be translated and their translation progress
-    """
+    "
     storage = get_storage(request)
     languages = []
 
@@ -314,9 +303,9 @@ def list_languages(request, do_session_warn=False):
 @never_cache
 @user_passes_test(lambda user: can_translate(user), settings.LOGIN_URL)
 def lang_sel(request, langid, idx):
-    """
+    "
     Selects a file to be translated
-    """
+    "
     storage = get_storage(request)
     if langid not in [l[0] for l in settings.LANGUAGES]:
         raise Http404
@@ -365,3 +354,5 @@ def translate_text(request):
             data = {'success': False, 'error': "Translation API Exception: {0}".format(e.message)}
 
     return HttpResponse(json.dumps(data), mimetype='application/json')
+"""
+

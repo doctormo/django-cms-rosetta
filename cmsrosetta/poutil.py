@@ -1,27 +1,86 @@
-from datetime import datetime
-
-from django.utils.translation import ugettext_lazy as _
-from django.core.cache import get_cache
+#
+# Copyright (C) 2014 Martin Owens <doctormo@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
 
 import django
 import os
 
+from datetime import datetime
+from collections import defaultdict
+from glob import glob
+
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
+from django.utils.importlib import import_module
+from django.utils.timezone import now
+
+from polib import POEntry, POFile, pofile as get_po
+
 from .utils import *
 from .settings import *
 
-from polib import POFile, pofile as pobase
+import six
+import hashlib
 
-try:
-    from django.utils import timezone
-except:
-    timezone = None
+get_path     = lambda p: os.path.normpath(os.path.abspath(os.path.isfile(p)\
+                 and os.path.dirname(p) or p))
 
-LANGS = dict(settings.LANGUAGES)
+LAST_RELOAD  = now()
+KINDS        = set()
+LANGS        = dict(settings.LANGUAGES)
+C_LANG       = LANGS.pop(MESSAGES_SOURCE_LANGUAGE_CODE, None)
+PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
+
+def get_md5hash(self):
+    return hashlib.md5(
+      (six.text_type(self.msgid) +
+       six.text_type(self.msgstr) +
+       six.text_type(self.msgctxt or "")).encode('utf8')
+    ).hexdigest()
+
+def set_msg(self, msg):
+    if isinstance(msg, list):
+        for (x, d) in enumerate(self.msgstr_plural):
+            if msg[x] != d:
+                self.msgstr_plural[x] = fix_nls(d, msg[x])
+                self.updated = True
+    else:
+        if msg != self.msgstr:
+            self.msgstr = fix_nls(self.msgstr, msg)
+            self.updated = True
+
+def set_flag(self, flag, value):
+    (a,b) = (flag in self.flags, value)
+    if a and not b:
+        self.flags.remove(flag)
+        self.updated = True
+    elif b and not a:
+        self.flags.append(flag)
+        self.updated = True
+
+# Monkey patch for unique-id for each entry
+POEntry.md5hash = property(get_md5hash)
+
+
 
 class NewPoFile(POFile):
+    """A po file full of translatable strings"""
     @property
     def filename(self):
-        return os.path.realpath(getattr(self, '_filename', 'UNKNOWN'))
+        return os.path.realpath(self.fpath)
 
     @property
     def path(self):
@@ -31,12 +90,6 @@ class NewPoFile(POFile):
         return os.path.realpath(f).replace(settings.PROJECT_PATH, '~')
 
     @property
-    def name(self):
-        f = self.filename.replace('/locale', '')
-        return f.split("/")[-4].replace('_', ' ') + (
-          'djangojs.po' in f and ' (Javascript)' or '')
-
-    @property
     def lang(self):
         return self.filename.split('/locale/', 1)[-1].split('/')[0]
 
@@ -44,173 +97,190 @@ class NewPoFile(POFile):
     def language(self):
         return _(LANGS.get(self.lang, 'Unknown'))
 
+    @property
+    def last_modified(self):
+        return datetime.utcfromtimestamp(os.path.getmtime(self.filename))
+
+    @property
+    def needs_refresh(self):
+        return self.last_modified > LAST_RELOAD
+
+    def progress_totals(self):
+        return [ (i[0], i[1], float(i[1]) / len(self) * 100) for i in self.progress() ]
+
+    def done_total(self):
+        return float(sum([ i[1] for i in self.progress() ])) / len(self) * 100
+
     def progress(self):
         return (
-          ('done', float(len(self.translated_entries())) / len(self) * 99),
-          ('fuzzy', float(len(self.fuzzy_entries())) / len(self) * 99),
-          ('obsolete', float(len(self.obsolete_entries()))  / len(self) * 99),
+          ('done',     len(self.translated_entries())),
+          ('fuzzy',    len(self.fuzzy_entries())),
+          ('obsolete', len(self.obsolete_entries())),
         )
 
+    def get_url(self):
+        return reverse('rosetta-file', kwargs=dict(kind=self.app.kind, page=self.app.name))
 
 
-def pofile(pofile, *args, **kwargs):
-    kwargs['klass'] = NewPoFile
-    ret = pobase(pofile, *args, **kwargs)
-    ret._filename = pofile
-    return ret
+class LocaleDir(object):
+    """A single locale directory"""
+    def __init__(self, path, kind):
+        self.path = get_path(path)
+        self._po_files = []
+        self._po_langs = {}
+        self.kind = kind
 
-def pofiles(pos):
-    return sorted([pofile(l) for l in pos], key=lambda app: app.name)
+    def __iter__(self):
+        return self.po_files.__iter__()
 
+    def __getitem__(self, key):
+        return self.po_langs[key]
 
-def timestamp_with_timezone(dt=None):
-    """
-    Return a timestamp with a timezone for the configured locale.  If all else
-    fails, consider localtime to be UTC.
-    """
-    dt = dt or datetime.now()
-    if timezone is None:
-        return dt.strftime('%Y-%m-%d %H:%M%z')
-    if not dt.tzinfo:
-        tz = timezone.get_current_timezone()
-        if not tz:
-            tz = timezone.utc
-        dt = dt.replace(tzinfo=timezone.get_current_timezone())
-    return dt.strftime("%Y-%m-%d %H:%M%z")
+    @property
+    def po_files(self):
+        if not self._po_files:
+            for lang in LANGS.keys():
+                pofile = self._generate_lang(lang)
+                if not pofile:
+                    continue
+                self._po_files.append( get_po(pofile, klass=NewPoFile, wrapwidth=POFILE_WRAP_WIDTH))
+                self._po_langs[lang] = self._po_files[-1]
+                self._po_files[-1].app = self
+        return self._po_files
 
+    @property
+    def po_langs(self):
+        if not self._po_langs:
+            po = self.po_files
+        return self._po_langs
 
-class Mode(list):
-    """Controls the categorisation of po files and the selectable mode to
-       filter for them"""
-    def __init__(self, value):
-        self.value = value
-        self.append('all')
+    def get_for_lang(self, lang):
+        return self.po_langs[lang]
 
-    def is_(self, b):
-        if b not in self:
-            self.append( b )
-        return self.value in (b, 'all')
-
-    def __eq__(self, b):
-        return b == self.value
-
-
-@p_cache(60 * 60, 'rosetta_django_paths', list)
-def django_dirs():
-    for root, dirnames, filename in os.walk(os.path.abspath(os.path.dirname(django.__file__))):
-        if 'locale' in dirnames:
-            yield os.path.join(root, 'locale')
-
-
-def find_pos(lang, mode):
-    """
-    scans a couple possible repositories of gettext catalogs for the given
-    language code
-    """
-    paths = []
-
-    # project/locale
-    parts = settings.SETTINGS_MODULE.split('.')
-    project = __import__(parts[0], {}, {}, [])
-    p_path = os.path.abspath(os.path.dirname(project.__file__))
-    abs_project_path = os.path.normpath(p_path)
-    if mode.is_('project'):
-        paths += [os.path.join(p_path, 'locale'), os.path.join(p_path, '..', 'locale')]
-        paths += list(getattr(settings, 'LOCALE_PATHS', ()))
-
-    # extra/locale
-    if mode.is_('extra'):
-        paths += list(EXTRA_PATHS)
-
-    # django/locale
-    if mode.is_('django'):
-        paths += django_dirs()
-
-    # settings
-    for localepath in settings.LOCALE_PATHS:
-        if os.path.isdir(localepath):
-            paths.append(localepath)
-
-    # project/app/locale
-    for appname in settings.INSTALLED_APPS:
-        if EXCLUDED_APPLICATIONS and appname in EXCLUDED_APPLICATIONS:
-            continue
-        p = appname.rfind('.')
-        if p >= 0:
-            app = getattr(__import__(appname[:p], {}, {}, [str(appname[p + 1:])]), appname[p + 1:])
-        else:
-            app = __import__(appname, {}, {}, [])
-
-        apppath = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(app.__file__), 'locale')))
-
-        # django apps
-        if 'contrib' in apppath and 'django' in apppath and not mode.is_('django'):
-            continue
-
-        # third party external
-        if not mode.is_('third-party') and abs_project_path not in apppath:
-            continue
-
-        # local apps
-        if not mode.is_('project') and abs_project_path in apppath:
-            continue
-
-        if os.path.isdir(apppath):
-            paths.append(apppath)
-
-    ret = set()
-    langs = [lang, ]
-    if u'-' in lang:
-        _l, _c = map(lambda x: x.lower(), lang.split(u'-'))
-        langs += [u'%s_%s' % (_l, _c), u'%s_%s' % (_l, _c.upper()), ]
-    elif u'_' in lang:
-        _l, _c = map(lambda x: x.lower(), lang.split(u'_'))
-        langs += [u'%s-%s' % (_l, _c), u'%s-%s' % (_l, _c.upper()), ]
-
-    paths = map(os.path.normpath, paths)
-    paths = list(set(paths))
-    for path in paths:
-        if not os.path.isdir(path):
-            continue
-        for lang_ in langs:
-            dirname = os.path.join(path, lang_, 'LC_MESSAGES')
-            for fn in POFILENAMES:
-                filename = os.path.join(dirname, fn)
+    def _generate_lang(self, lang):
+        for fn in POFILENAMES:
+            for lang_code in self._veriations(lang):
+                filename = self._po_file(lang_code, fn)
                 if os.path.isfile(filename):
-                    ret.add(os.path.abspath(filename))
-    return list(sorted(ret))
+                    return filename
+        return self._gen_filename(lang)
+
+    def _po_file(self, lang, fn):
+        return os.path.join(self.path, lang, 'LC_MESSAGES', fn)
+
+    def _gen_filename(self, lang):
+        pot_file = self.pot_file()
+        if pot_file:
+            filename = self._po_file(lang, os.path.basename(pot_file))
+            print "Saving %s" % filename
+            if not os.path.isdir(os.path.dirname(filename)):
+                os.makedirs(os.path.dirname(filename))
+            new_po = get_po(pot_file)
+            new_po.fpath = None
+            new_po.metadata['Language'] = lang
+            for entry in new_po:
+                entry.msgstr = ''
+                if entry.msgstr_plural:
+                    for pos in entry.msgstr_plural:
+                        entry.msgstr_plural[pos] = ''
+            new_po.save(filename)
+            return filename
+
+    def pot_file(self):
+        if not hasattr(self, '_pot_file'):
+            self._pot_file = None
+            for item in glob(self._po_file('*', '*.po')):
+                if not self._pot_file or os.path.getmtime(item) > os.path.getmtime(self._pot_file):
+                    self._pot_file = item
+        return self._pot_file
+
+    def _veriations(self, lang):
+        """Generator to return en, en_GB, en_gb, en-gb, en-GB veriations"""
+        lang = lang.replace('_', '-')
+        if '-' in lang:
+            bits = lang.lower().split('-', 1)
+            for sep in '-_':
+                yield bits[0] + sep + bits[1]
+                yield bits[0] + sep + bits[1].upper()
+        else:
+            yield lang
+
+    @property
+    def name(self):
+        path = self.path.replace('/locale', '')
+        return path.split("/")[-1].replace(' ', '_') + (
+          path.endswith('js.po') and '_js' or '')
+
+    def __repr__(self):
+        return "LocaleDir('%s')" % (self.path)
 
 
-def pagination_range(first, last, current):
-    r = []
+class CmsGenerator(object):
+    """Generate po for django-cms"""
+    def __getitem__(self, page):
+        pass
 
-    r.append(first)
-    if first + 1 < last:
-        r.append(first + 1)
+    def values(self):
+        return []
 
-    if current - 2 > first and current - 2 < last:
-        r.append(current - 2)
-    if current - 1 > first and current - 1 < last:
-        r.append(current - 1)
-    if current > first and current < last:
-        r.append(current)
-    if current + 1 < last and current + 1 > first:
-        r.append(current + 1)
-    if current + 2 < last and current + 2 > first:
-        r.append(current + 2)
+class KindList(dict):
+    """A subset list showing only items"""
+    def __getitem__(self, key):
+        if key in LANGS:
+            return [ b.get_for_lang(key) for (a,b) in self.items() ]
+        return dict.__getitem__(self, key)
 
-    if last - 1 > first:
-        r.append(last - 1)
-    r.append(last)
+class Locales(defaultdict):
+    """A full list of all possible locales in all projects"""
+    def __init__(self):
+        defaultdict.__init__(self, KindList)
+        for (path, kind) in self.dirs():
+            if os.path.isdir(path):
+                locale = LocaleDir(path, kind)
+                if locale.name in self[kind]:
+                    raise KeyError("Locale id/name used: %s (%s.%s)" % (
+                        path, kind, locale.name))
+                self[kind][locale.name] = locale
+                KINDS.add(kind)
+        self['cms'] = CmsGenerator()
 
-    r = list(set(r))
-    r.sort()
-    prev = 10000
-    for e in r[:]:
-        if prev + 1 < e:
-            try:
-                r.insert(r.index(e), '...')
-            except ValueError:
-                pass
-        prev = e
-    return r
+    def __repr__(self):
+        return "Locales()"
+
+    def __getitem__(self, key):
+        if key in LANGS:
+            return self.get_for_lang(key)
+        return defaultdict.__getitem__(self, key)
+
+    def get_for_lang(self, lang):
+        for kind in self.keys():
+            for locale in self[kind].values():
+                yield locale.get_for_lang(lang)
+
+    @p_cache(60 * 60, 'rosetta_locale_paths', list)
+    def dirs(self):
+        for path in getattr(settings, 'LOCALE_PATHS', ()) + (
+                  os.path.join(PROJECT_PATH, 'locale'),
+                  os.path.join(PROJECT_PATH, '..', 'locale')):
+            yield (path, 'project')
+
+        for path in EXTRA_PATHS:
+            yield (path, 'other')
+
+        for root, dirnames, filename in os.walk(get_path(django.__file__)):
+            if 'locale' in dirnames:
+                yield (os.path.join(root, 'locale'), 'django')
+
+        # project/app/locale
+        for appname in settings.INSTALLED_APPS:
+            if EXCLUDED_APPLICATIONS and appname in EXCLUDED_APPLICATIONS:
+                continue
+            apppath = os.path.join(get_path(import_module(appname).__file__), 'locale')
+
+            if 'contrib' in apppath and 'django' in apppath:
+                yield (apppath, 'contrib')
+            elif PROJECT_PATH not in apppath:
+                yield (apppath, 'third-party')
+            else:
+                yield (apppath, 'project')
+

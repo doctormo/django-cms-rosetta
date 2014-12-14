@@ -1,0 +1,141 @@
+{% extends "rosetta/base.html" %}{% load admin_static %}
+{% load rosetta i18n pagination_tags %}
+
+{% block header %}
+  {{ block.super }}
+  <!--<div id="user-tools">
+    <p>
+      <span>
+        <a href="{% url 'rosetta' %}">{% trans "Pick another file" %}</a> /
+        <a href="{ url 'rosetta-download' %}">{% trans "Download this catalog" %}</a>
+      </span>
+    </p>
+  </div>-->
+{% endblock %}
+
+{% block pagetitle %}{{ block.super }}
+  - {{ pofile.app.kind|title }}
+  - {{ pofile.app.name|title }}
+  - {{ language_name }}
+({{ pofile.percent_translated|floatformat:0 }}%){% endblock %}
+
+{% block breadcumbs %}
+    <div>
+        <a href="{% url 'rosetta' %}">{% trans "Home" %}</a> &rsaquo;
+        <a href="{% url 'rosetta-list' pofile.app.kind %}">{{ pofile.app.kind|title }}</a> &rsaquo;
+        {{ pofile.app.name|title }} &rsaquo;
+        {{ language_name }} &rsaquo;
+        {% blocktrans with pofile.percent_translated|floatformat:2 as percent_translated  %}Progress: {{ percent_translated }}%{% endblocktrans %}
+        &rsaquo; Page {{ page }}
+    </div>
+    {% if pofile.read_only %}<p class="errornote read-only">{% trans "File is read-only: download the file when done editing!" %}</p>{% endif %}
+    {% if error %}<p class="errornote save-conflict">{% trans "Some items in your last translation block couldn't be saved: this usually happens when the catalog file changes on disk after you last loaded it." %}</p>{% endif %}
+{% endblock %}
+
+{% block main %}
+    <h1>{% blocktrans  %}Translate into {{ language_name }}{% endblocktrans %}</h1>
+
+    <ul class="object-tools">
+        <li class="nobubble">{% trans "Display:" %}</li>
+        <li {% if filter == 'untranslated' %}class="active"{% endif %}><a href="?filter=untranslated">{% trans "Untranslated only" %}</a></li>
+        <li {% if filter == 'translated' %}class="active"{% endif %}><a href="?filter=translated">{% trans "Translated only" %}</a></li>
+        <li {% if filter == 'fuzzy' %}class="active"{% endif %}><a href="?filter=fuzzy">{% trans "Fuzzy only" %}</a></li>
+        <li {% if filter == 'all' %}class="active"{% endif %}><a href="?filter=all">{% trans "All" %}</a></li>
+    </ul>
+
+    <div id="changelist" class="module">
+      <div id="toolbar">
+        <form id="changelist-search" action="" method="post">
+          <div>
+            {% rosetta_csrf_token %}
+            <label for="searchbar"><img src="{% static "admin/img/icon_searchbox.png" %}" alt="{% trans "Search" %}" /></label>
+            <input type="text" size="40" name="query" value="{{ query }}" id="searchbar" tabindex="0" />
+            <input type="submit" name="search" value="{% trans "Go" %}" />
+          </div>
+        </form>
+      </div>
+      <form method="post" action="">
+        <table>
+          <thead>
+            <tr>
+              {% rosetta_csrf_token %}
+              <th><div class="text">{% trans "Original" %}</div></th>
+              <th>{{ language_name }}</th>
+              <th class="c fuzzy"><span class="checkall">[-]</span> {% trans "Fuzzy" %}</th>
+              <th class="c occur">{% trans "Occurrences(s)" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% autopaginate pofile 10 as items %}
+            {% for message in items %}
+              <tr class="{% cycle row1,row2 %}">
+                {% if message.msgid_plural %}
+                  <td class="original plural">
+                    <div class="plural-container">
+                      <span class="part">{{message.msgid|format_message|linebreaksbr}}</span>
+                      <span class="part">{{message.msgid_plural|format_message|linebreaksbr}}</span>
+                    </div>
+
+                    {% if message.msgctxt %}
+                      <span class="context">{% trans "Context hint" %}: {{message.msgctxt|safe}}</span>
+                    {% else %}
+                      {% if message.comment %}
+                        <span class="context">{% trans "Context hint" %}: {{message.comment|safe}}</span>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                  <td class="translation">
+                    {% for k, msgstr in message.msgstr_plural.items|dictsort:"0"  %}
+                      <label for="m_{{message.md5hash}}_{{k}}">{{k}}:</label>
+                      <textarea rows="{{message.msgid|format_message|lines_count}}" cols="40" id="{{ message.md5hash }}_msg_{{ k }}" name="{{ message.md5hash }}_msgs_{{ k }}" tabindex="{% increment tab_idx %}">{{msgstr}}</textarea>
+                    {% endfor %}
+                  </td>
+                {% else %}
+                  <td class="original">
+                    <span class="message">{{ message.msgid|format_message|linebreaksbr }}</span>
+                    {% if message.msgctxt %}
+                      <span class="context">{% trans "Context hint" %}: "{{message.msgctxt|safe}}"</span>
+                    {% else %}
+                      {% if message.comment %}
+                        <span class="context">{% trans "Context hint" %}: {{message.comment|safe}}</span>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                  <td class="translation">
+                    <textarea rows="{{message.msgid|format_message|lines_count}}" cols="40" name="{{ message.md5hash }}_msg" tabindex="{% increment tab_idx %}">{{message.msgstr}}</textarea>
+                    {% if ENABLE_TRANSLATION_SUGGESTIONS %}
+                      <a href="#" class="suggest">{% trans "suggest" %}</a>
+                    {% endif %}
+                  </td>
+                {% endif %}
+                <td class="c">
+                  <input type="checkbox" name="{{message.md5hash}}_fuzzy" value="1" {% if message|is_fuzzy %}checked="checked"{% endif %} />
+                </td>
+                <td class="location">
+                  {% for fn,lineno in message.occurrences %}
+                    <code{% if forloop.counter|gt:"3" %} class="hide"{% endif %}>{{ fn }}:{{lineno}}</code>
+                  {% endfor %}
+                  {% if message.occurrences|length|gt:"3" %}
+                    <a href="#">&hellip; ({% blocktrans count message.occurrences|length|minus:"3" as more_count %}{{more_count}} more{% plural %}{{more_count}} more{% endblocktrans %})</a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="submit-row">
+          {% if query %}
+            <input type="hidden" name="query" value="{{query}}"  />
+          {% endif %}
+          {% if page_obj.has_next %}
+            <input type="hidden" name="page" value="{{ page|add:1 }}"/>
+            <input type="submit" class="default" value="{% trans "Save and translate next page" %}" tabindex="{% increment tab_idx %}"/>
+          {% else %}
+            <input type="submit" class="default" name="_index" value="{% trans "Save" %}" tabindex="{% increment tab_idx %}"/>
+          {% endif %}
+            
+        </div>
+        {% paginate %}
+      </form>
+    </div>
+{% endblock %}

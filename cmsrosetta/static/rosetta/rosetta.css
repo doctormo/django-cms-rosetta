@@ -181,3 +181,36 @@ td.progress div .obsolete {
   border-color: #894932;
   box-shadow: inset 0px 1px 0px 0px #f38383, inset 0px -1px 1px #c43a3a;
 }
+
+#languages {
+  float: right;
+  margin: 3px 20px;
+  width: 130px;
+}
+#languages p {
+  padding: 4px;
+}
+#languages ul {
+  list-style: outside none none;
+  border: 1px solid green;
+  display: none;
+  width: 130px;
+  padding: 0px;
+  margin: 0px;
+  position: absolute;
+  background-color: #417690;
+  z-index: 10;
+}
+#languages:hover ul {
+  display: block;
+}
+#languages li {
+  list-style: outside none none;
+  padding: 10px;
+}
+#languages li:hover {
+  background-color: #315c70;
+}
+#languages .selected {
+  background-color: #315c70;
+}
