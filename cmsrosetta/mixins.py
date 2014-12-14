@@ -20,6 +20,7 @@ Mixin locales access (global per thread) and restrict the translation permission
 
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
+from django.contrib.sites.models import Site
 from django.utils.decorators import method_decorator
 from cms.utils import get_language_from_request
 
@@ -43,13 +44,19 @@ class TranslatorMixin(object):
     def dispatch(self, request, *args, **kwargs):
         return super(TranslatorMixin, self).dispatch(request, *args, **kwargs)
 
+    def datum(self, key, *args):
+        return self.request.GET.get(key, self.request.POST.get(key, *args))
+
     def get_context_data(self, **data):
         path = self.request.path.replace(self.language + "/", '')
+        path = path.replace('en/', '')
         return {
           'languages'       : settings.LANGUAGES,
           'language'        : self.language,
           'language_name'   : LANGS.get(self.language, 'Error'),
           'current_url'     : path,
           'language_source' : MESSAGES_SOURCE_LANGUAGE_CODE,
+          'msg_per_page'    : MESSAGES_PER_PAGE, 
           'kinds'           : KINDS,
+          'site'            : Site.objects.get_current()
         }

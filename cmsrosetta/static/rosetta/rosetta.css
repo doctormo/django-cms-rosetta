@@ -130,6 +130,7 @@ div.module {
 #changelist table thead th {
   padding: 2px 5px;
 }
+
 p.paginator input,#toolbar #translate-all {
   float: right;
 }
@@ -213,4 +214,16 @@ td.progress div .obsolete {
 }
 #languages .selected {
   background-color: #315c70;
+}
+button.prev {
+  float: left !important;
+}
+button.current,
+button.page,
+button.dot {
+  float: none !important;
+  margin: 0px 3px !important;
+}
+.submit-row {
+  text-align: center;
 }

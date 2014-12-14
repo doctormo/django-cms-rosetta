@@ -5,8 +5,14 @@ import re
 from django.template import Node
 import six
 
-
 register = template.Library()
+
+# We want to over-ride the pagination template, believe it or not
+# this is the best way to re-use as much of the paginaiton code.
+from pagination.templatetags.pagination_tags import paginate as paginate_cms, do_autopaginate
+register.inclusion_tag('rosetta/pagination.html', takes_context=True)(paginate_cms)
+register.tag('autopaginate', do_autopaginate)
+
 rx = re.compile(r'(%(\([^\s\)]*\))?[sd])')
 
 

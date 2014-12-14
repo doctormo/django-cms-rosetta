@@ -1,0 +1,47 @@
+{% extends "rosetta/base.html" %}
+{% load i18n sekizai_tags %}
+
+{% block title %}
+  {% block pagetitle %}{% trans "Translation Statistics" %}{% endblock %}
+{% endblock %}
+
+{% block main %}
+  <h1>&nbsp;</h1>
+
+  <ul class="object-tools">
+    <li class="nobubble">{% trans "Filter" %}:</li>
+    {% for k in kinds %}
+      <li{% if kind == k %} class="active"{% endif %}>
+        <a href="?filter=k">{% trans k|title %}</a>
+      </li>
+    {% endfor %}
+    <li{% if not kind %} class="active"{% endif %}>
+      <a href="?filter=all">{% trans "All" %}</a>
+    </li>
+  </ul>
+
+  <div class="module">
+    <h2>{% trans "All Applications" %}</h2>
+    <table cellspacing="0">
+      <thead>
+        <tr>
+          <th>{% trans "Language" %}</th>
+          <th>{% trans "Progress" %}</th>
+          <th>{% trans "Contributors" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in languages %}
+          {% if l.0 != language_source %}
+            </tr>
+              <td><a href="/{{ l.0 }}{{ current_url }}">{% trans l.1 %}</a></td>
+              <td>{{ l.2 }}</td>
+              <td>{{ l.3 }}</td>
+            <tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}

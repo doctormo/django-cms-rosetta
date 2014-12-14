@@ -1,0 +1,22 @@
+{% load i18n %}
+
+{% if is_paginated %}
+  {% if page_obj.has_previous %}
+    <button class="prev default button" name="page" value="{{ page_obj.previous_page_number }}">&lsaquo;&lsaquo; {% trans "previous" %}</button>
+  {% else %}
+    <button class="prev default button" disabled>&lsaquo;&lsaquo; {% trans "previous" %}</button>
+  {% endif %}
+
+  {% for page in pages %}
+    {% if page %}
+      {% ifequal page page_obj.number %}
+        <button class="current default button" disabled>{{ page }}</button>
+      {% else %}
+        <button class="page default button" name="page" value="{{ page }}">{{ page }}</button>
+      {% endifequal %}
+    {% else %}
+      <button class="dot default button" disabled>...</button>
+    {% endif %}
+  {% endfor %}
+
+{% endif %}

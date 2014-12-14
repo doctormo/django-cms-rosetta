@@ -1,47 +1,40 @@
 {% extends "rosetta/base.html" %}{% load admin_static %}
-{% load rosetta i18n pagination_tags %}
+{% load rosetta i18n %}
 
 {% block header %}
   {{ block.super }}
-  <!--<div id="user-tools">
+  <div id="user-tools">
     <p>
       <span>
-        <a href="{% url 'rosetta' %}">{% trans "Pick another file" %}</a> /
-        <a href="{ url 'rosetta-download' %}">{% trans "Download this catalog" %}</a>
+        <a href="{% url 'rosetta-upload' pofile.app.kind pofile.app.name %}">{% trans "Upload catalog" %}</a> /
+        <a href="{% url 'rosetta-download' pofile.app.kind pofile.app.name %}">{% trans "Download this catalog" %}</a>
       </span>
     </p>
-  </div>-->
+  </div>
 {% endblock %}
 
 {% block pagetitle %}{{ block.super }}
   - {{ pofile.app.kind|title }}
   - {{ pofile.app.name|title }}
-  - {{ language_name }}
 ({{ pofile.percent_translated|floatformat:0 }}%){% endblock %}
 
 {% block breadcumbs %}
-    <div>
-        <a href="{% url 'rosetta' %}">{% trans "Home" %}</a> &rsaquo;
-        <a href="{% url 'rosetta-list' pofile.app.kind %}">{{ pofile.app.kind|title }}</a> &rsaquo;
-        {{ pofile.app.name|title }} &rsaquo;
-        {{ language_name }} &rsaquo;
-        {% blocktrans with pofile.percent_translated|floatformat:2 as percent_translated  %}Progress: {{ percent_translated }}%{% endblocktrans %}
-        &rsaquo; Page {{ page }}
-    </div>
-    {% if pofile.read_only %}<p class="errornote read-only">{% trans "File is read-only: download the file when done editing!" %}</p>{% endif %}
-    {% if error %}<p class="errornote save-conflict">{% trans "Some items in your last translation block couldn't be saved: this usually happens when the catalog file changes on disk after you last loaded it." %}</p>{% endif %}
+  &rsaquo; <a href="{% url 'rosetta-list' pofile.app.kind %}">{{ pofile.app.kind|title }}</a>
+  &rsaquo; {{ pofile.app.name|title }} ({{ pofile.percent_translated|floatformat:2 }}%)
 {% endblock %}
 
 {% block main %}
-    <h1>{% blocktrans  %}Translate into {{ language_name }}{% endblocktrans %}</h1>
+  {% autopaginate entries msg_per_page as items %}
+  <h1>{% blocktrans  %}Translate into {{ language_name }}{% endblocktrans %}</h1>
 
-    <ul class="object-tools">
-        <li class="nobubble">{% trans "Display:" %}</li>
-        <li {% if filter == 'untranslated' %}class="active"{% endif %}><a href="?filter=untranslated">{% trans "Untranslated only" %}</a></li>
-        <li {% if filter == 'translated' %}class="active"{% endif %}><a href="?filter=translated">{% trans "Translated only" %}</a></li>
-        <li {% if filter == 'fuzzy' %}class="active"{% endif %}><a href="?filter=fuzzy">{% trans "Fuzzy only" %}</a></li>
-        <li {% if filter == 'all' %}class="active"{% endif %}><a href="?filter=all">{% trans "All" %}</a></li>
-    </ul>
+  <ul class="object-tools">
+    <li class="nobubble">{% trans "Display:" %}</li>
+    {% for f in pofile.filters %}
+      <li {% if filter == f.0 %}class="active"{% endif %}>
+        <a href="?filter={{ f.0 }}">{{ f.1 }}</a>
+      </li>
+    {% endfor %}
+  </ul>
 
     <div id="changelist" class="module">
       <div id="toolbar">
@@ -66,7 +59,6 @@
             </tr>
           </thead>
           <tbody>
-            {% autopaginate pofile 10 as items %}
             {% for message in items %}
               <tr class="{% cycle row1,row2 %}">
                 {% if message.msgid_plural %}
@@ -123,19 +115,19 @@
             {% endfor %}
           </tbody>
         </table>
+        {% if query %}
+          <input type="hidden" name="query" value="{{query}}"  />
+        {% endif %}
         <div class="submit-row">
-          {% if query %}
-            <input type="hidden" name="query" value="{{query}}"  />
-          {% endif %}
-          {% if page_obj.has_next %}
-            <input type="hidden" name="page" value="{{ page|add:1 }}"/>
-            <input type="submit" class="default" value="{% trans "Save and translate next page" %}" tabindex="{% increment tab_idx %}"/>
-          {% else %}
-            <input type="submit" class="default" name="_index" value="{% trans "Save" %}" tabindex="{% increment tab_idx %}"/>
-          {% endif %}
-            
+          {% paginate %}
+          <button type="submit" class="button default" tabindex="{% increment tab_idx %}"
+            {% if page_obj.has_next %}
+              name="save" value="{{ page|add:1 }}">{% trans "Save and Next Page" %}
+            {% else %}
+              name="save" value="0">{% trans "Save and Quit" %}
+            {% endif %}
+          </button>
         </div>
-        {% paginate %}
       </form>
     </div>
 {% endblock %}

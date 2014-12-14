@@ -1,18 +1,10 @@
 {% extends "rosetta/base.html" %}
 {% load i18n sekizai_tags %}
 
-{% block pagetitle %}{{block.super}} - {% trans "Language selection" %}{% endblock %}
+{% block pagetitle %}{{block.super}} - {% trans "App Selection" %}{% endblock %}
 
 {% block breadcumbs %}
-    <div>
-      {% if kind %}
-        <a href="{% url 'rosetta' %}">{% trans "Home" %}</a> &rsaquo;
-        {% trans kind|title %} Translations
-      {% else %}
-        {% trans "Home" %}
-      {% endif %}
-    </div>
-    {% if do_session_warn %}<p class="errornote session-warn">{% trans "Couldn't load the specified language file. This usually happens when using the Encrypted Cookies Session Storage backend on Django 1.4 or higher.<br/>Setting ROSETTA_STORAGE_CLASS = 'rosetta.storage.CacheRosettaStorage' in your settings file should fix this." %}</p>{% endif %}
+  {% if kind %}&rsaquo; {% trans kind|title %} Translations{% endif %}
 {% endblock %}
 
 {% block main %}

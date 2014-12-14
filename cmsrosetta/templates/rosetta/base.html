@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>{% block pagetitle %}{% trans "Translations" %}{% endblock %}</title>
+    <title>{% block pagetitle %}{{ language_name }} {% trans "Translations" %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
     <link rel="stylesheet" href="{% static "admin/css/base.css" %}" type="text/css"/>
@@ -24,27 +24,21 @@
   <body>
     <div id="container">
       <div id="header">
-        <div id="languages">
-          {% for l in languages %}
-            {% if language == l.0 %}
-              <p>{{ l.1 }}</p>
-            {% endif %}
-          {% endfor %}
-          <ul>
-            {% for l in languages %}
-              <li class="{% if language == l.0 %}selected{% endif %}">
-                <a href="/{{ l.0 }}{{ current_url }}">{{ l.1 }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
         {% block header %}
           <div id="branding">
-            <h1 id="site-name"><a href="{% url 'rosetta' %}">{% trans "Translations" %}</a> </h1>
+            <h1 id="site-name">
+              <a href="{% url 'rosetta' %}">{% blocktrans with site.name as site_name %}{{ site_name }} Translations{% endblocktrans %}</a>
+            </h1>
           </div>
         {% endblock %}
       </div>
-      <div class="breadcrumbs">{% block breadcumbs %}{% endblock %}</div>
+      <div class="breadcrumbs">
+        <a href="{% url 'rosetta' %}">{% trans "Home" %}</a>
+        {% if language %}
+          &rsaquo; <a href="{% url 'rosetta-list' %}">{{ language_name }}</a>
+        {% endif %}
+        {% block breadcumbs %}{% endblock %}
+      </div>
       <div id="content" class="flex">
         <div id="content-main">
           {% block main %}{% endblock %}

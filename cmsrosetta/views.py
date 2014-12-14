@@ -15,34 +15,20 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-#from django.contrib.auth.decorators import user_passes_test
-#from django.core.paginator import Paginator
-#from django.core.urlresolvers import reverse
-#from django.http import Http404, HttpResponseRedirect, HttpResponse
-#from django.shortcuts import render_to_response
-#from django.template import RequestContext
-#from django.utils.encoding import iri_to_uri
-#from django.utils.translation import ugettext_lazy as _
-#from django.views.decorators.cache import never_cache
-
-#from .signals import entry_changed, post_save
-#from .storage import get_storage
-#from .access import can_translate
-#from .settings import *
-#from .utils import fix_nls
-
-#import json
-#import re
-#import unicodedata
-#import hashlib
-#import os
-#import six
-
+from django.contrib import messages
 from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 
 from .mixins import TranslatorMixin
 from request_tree import data_tree
+
+class Stats(TemplateView, TranslatorMixin):
+    template_name = 'rosetta/home.html'
+
+    def get_context_data(self, **data):
+        data = TranslatorMixin.get_context_data(self, **data)
+        data['language'] = None
+        return data
 
 class List(TemplateView, TranslatorMixin):
     template_name = 'rosetta/list.html'
@@ -61,20 +47,29 @@ class Item(TemplateView, TranslatorMixin):
 
     @data_tree
     def post(self, data, request, *args, **kwargs):
-        """Save Data"""
+        if 'save' in request.POST:
+            self.save_pofile(data)
+            request.page = int(request.POST['save'])
+        elif 'page' in request.POST:
+            request.page = int(request.POST['page'])
+
+        if not request.page:
+            return redirect('rosetta')
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def save_pofile(self, data):
         for (md5hash, datum) in data.items():
             if isinstance(datum, dict) and '5msg' in datum:
                 self.pofile.update_entry(md5hash, **datum)
-            #entry = self.pofile.find(md5hash, 'md5hash')
-            #if not entry or 'msg' not in datum:
-            #    continue
-            #entry.set_msg(datum['msg'])
-            #entry.set_flag('fuzzy', datum.get('fuzzy', 0))
-        if 'page' in request.POST:
-            request.page = int(request.POST['page'])
-            context = self.get_context_data(**kwargs)
-            return self.render_to_response(context)
-        return redirect('rosetta')
+            entry = self.pofile.find(md5hash, 'md5hash')
+            if not entry or 'msg' not in datum:
+                continue
+            entry.set_msg(datum['msg'])
+            entry.set_flag('fuzzy', datum.get('fuzzy', 0))
+            if self.pofile.has_updates:
+                self.pofile.save()
 
     @property
     def pofile(self):
@@ -82,8 +77,10 @@ class Item(TemplateView, TranslatorMixin):
 
     def get_context_data(self, **data):
         data = TranslatorMixin.get_context_data(self, **data)
-        data['pofile'] = self.pofile
-        data['page'] = self.request.page
+        data['filter']  = self.datum('filter', 'all')
+        data['entries'] = self.pofile.get_filter(data['filter'])
+        data['pofile']  = self.pofile
+        data['page']    = self.request.page
         return data
 
 

@@ -32,6 +32,7 @@ from polib import POEntry, POFile, pofile as get_po
 from .utils import *
 from .settings import *
 
+import sys
 import six
 import hashlib
 
@@ -54,12 +55,14 @@ def get_md5hash(self):
 def set_msg(self, msg):
     if isinstance(msg, list):
         for (x, d) in enumerate(self.msgstr_plural):
+            msg[x] = fix_nls(d, msg[x])
             if msg[x] != d:
-                self.msgstr_plural[x] = fix_nls(d, msg[x])
+                self.msgstr_plural[x] = msg[x]
                 self.updated = True
     else:
+        msg = fix_nls(self.msgstr, msg)
         if msg != self.msgstr:
-            self.msgstr = fix_nls(self.msgstr, msg)
+            self.msgstr = msg
             self.updated = True
 
 def set_flag(self, flag, value):
@@ -73,11 +76,36 @@ def set_flag(self, flag, value):
 
 # Monkey patch for unique-id for each entry
 POEntry.md5hash = property(get_md5hash)
-
+POEntry.set_flag = set_flag
+POEntry.set_msg = set_msg
 
 
 class NewPoFile(POFile):
     """A po file full of translatable strings"""
+    _filters = (
+       ('untranslated', _('Untranslated only')),
+       ('translated', _('Translated only')),
+       ('obsolete', _('Obsolete only')),
+       ('fuzzy', _('Fuzzy only')),
+       ('all', _('All')),
+    )
+
+    def __init__(self, *args, **kwargs):
+        POFile.__init__(self, *args, **kwargs)
+        self.loaded_time = now()
+
+    def all_entries(self):
+        return [ e for e in self if not e.obsolete ]
+
+    def get_filter(self, fid):
+        return getattr(self, fid+'_entries')()
+
+    @property
+    def filters(self):
+        for (fid, name) in self._filters:
+            if len(self.get_filter(fid)):
+                yield (fid, name)
+
     @property
     def filename(self):
         return os.path.realpath(self.fpath)
@@ -91,19 +119,33 @@ class NewPoFile(POFile):
 
     @property
     def lang(self):
+        """Returns the two letter code for this language"""
         return self.filename.split('/locale/', 1)[-1].split('/')[0]
 
     @property
     def language(self):
+        """Returns the translated full name for this language translation"""
         return _(LANGS.get(self.lang, 'Unknown'))
 
     @property
     def last_modified(self):
+        """Returns the last modified time of the po-file itself"""
         return datetime.utcfromtimestamp(os.path.getmtime(self.filename))
 
     @property
-    def needs_refresh(self):
-        return self.last_modified > LAST_RELOAD
+    def is_fresh(self):
+        """Returns true if last modified is above last thread reload"""
+        return self.last_modified <= LAST_RELOAD
+
+    @property
+    def is_stale(self):
+        """Returns true if the last_modified is above the obj load"""
+        return self.last_modified >= self.loaded_time
+
+    @property
+    def has_updates(self):
+        """Returns true if any of the entries have been updated"""
+        return any( [ getattr(e, 'updated', False) for e in self ] )
 
     def progress_totals(self):
         return [ (i[0], i[1], float(i[1]) / len(self) * 100) for i in self.progress() ]
