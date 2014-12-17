@@ -1,5 +1,5 @@
 {% extends "rosetta/base.html" %}
-{% load i18n sekizai_tags %}
+{% load i18n sekizai_tags rosetta %}
 
 {% block pagetitle %}{{block.super}} - {% trans "App Selection" %}{% endblock %}
 
@@ -35,16 +35,7 @@
           {% for po in objects %}
             <tr class="{% cycle row1,row2 %}">
               <td><a href="{{po.get_url }}">{{ po.app.name|title }}</a></td>
-              <td class="ch-total r">{{ po|length }}/{{ po.translated_entries|length }}</td>
-              <td class="ch-progress r">{{po.percent_translated|floatformat:0}}%</td>
-              <td class="progress">
-                <div title="{% for x,y in po.progress.items %}{{ x|title }}: {{ y }}
-{% endfor %}">
-                {% if po.done_total > 1 %}
-                  <span class="done" style="width: {{ po.done_total|floatformat:0 }}%;">&nbsp;</span>
-                {% endif %}
-                </div>
-              </td>
+              {% progressbar po.progress %}
               <td class="hint">{{ po.path }}</td>
             </tr>
           {% endfor %}

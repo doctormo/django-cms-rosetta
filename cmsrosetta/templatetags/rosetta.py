@@ -5,6 +5,8 @@ import re
 from django.template import Node
 import six
 
+from collections import OrderedDict, defaultdict
+
 register = template.Library()
 
 # We want to over-ride the pagination template, believe it or not
@@ -15,6 +17,23 @@ register.tag('autopaginate', do_autopaginate)
 
 rx = re.compile(r'(%(\([^\s\)]*\))?[sd])')
 
+def progressbar(context, progress):
+    to_return = OrderedDict((a, dict(name=b, groups=c, total=d)) for (a,b,c,d) in progress)
+
+    for v in to_return.values():
+        for group in v.get('groups', None) or []:
+            if not group in to_return:
+                to_return[group] = dict(name=group.title(), total=0)
+            to_return[group]['total'] += v['total']
+    
+    total = to_return['all']['total']
+    for item in to_return.values():
+        item['percent'] = float(item['total']) / total * 100
+
+    to_return['keys'] = to_return
+    return to_return
+
+register.inclusion_tag('rosetta/progress.html', takes_context=True)(progressbar)
 
 def format_message(message):
     return mark_safe(rx.sub('<code>\\1</code>', escape(message).replace(r'\n', '<br />\n')))

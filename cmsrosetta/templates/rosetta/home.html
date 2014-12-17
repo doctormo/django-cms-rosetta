@@ -1,5 +1,5 @@
 {% extends "rosetta/base.html" %}
-{% load i18n sekizai_tags %}
+{% load i18n sekizai_tags rosetta %}
 
 {% block title %}
   {% block pagetitle %}{% trans "Translation Statistics" %}{% endblock %}
@@ -26,19 +26,17 @@
       <thead>
         <tr>
           <th>{% trans "Language" %}</th>
-          <th>{% trans "Progress" %}</th>
+          <th colspan="3">{% trans "Progress" %}</th>
           <th>{% trans "Contributors" %}</th>
         </tr>
       </thead>
       <tbody>
-        {% for l in languages %}
-          {% if l.0 != language_source %}
+        {% for lang in languages %}
             </tr>
-              <td><a href="/{{ l.0 }}{{ current_url }}all/">{% trans l.1 %}</a></td>
-              <td>{{ l.2 }}</td>
-              <td>{{ l.3 }}</td>
-            <tr>
-          {% endif %}
+            <td><a href="/{{ lang.id }}{{ current_url }}all/">{% trans lang.name %}</a></td>
+            {% progressbar lang.progress %}
+            <td>{{ lang.people|join:', ' }}</td>
+          <tr>
         {% endfor %}
       </tbody>
     </table>

@@ -46,11 +46,11 @@ PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
 class NewPoFile(POFile):
     """A po file full of translatable strings"""
     _filters = (
-       ('untranslated', _('Untranslated only'), False ),
-       ('translated',   _('Translated only'),   True  ),
-       ('obsolete',     _('Obsolete only'),     False ),
-       ('fuzzy',        _('Fuzzy only'),        True  ),
-       ('all',          _('All'),               False ),
+       ('untranslated', _('Untranslated only'), None ),
+       ('translated',   _('Translated only'),   ['done'] ),
+       ('obsolete',     _('Obsolete only'),     None ),
+       ('fuzzy',        _('Fuzzy only'),        ['done'] ),
+       ('all',          _('All'),               None ),
     )
 
     def __init__(self, *args, **kwargs):
@@ -113,15 +113,8 @@ class NewPoFile(POFile):
         """Returns true if any of the entries have been updated"""
         return sum( [ getattr(e, 'updated', False) for e in self ] )
 
-    def progress_totals(self):
-        return [ (a, b, float(b) / len(self) * 100) for (a,b) in self.progress(True).items() ]
-
-    def done_total(self):
-        return float(sum([ b for (a,b) in self.progress(True).items() ])) / len(self) * 100
-
-    def progress(self, done=None):
-        return dict( (b, len(self.get_filter(a))) for (a,b,c) in self._filters
-            if done == None or c == done )
+    def progress(self):
+        return ((a,b,c,len(self.get_filter(a))) for (a,b,c) in self._filters )
 
     def get_url(self):
         return reverse('rosetta-file', kwargs=dict(kind=self.app.kind, page=self.app.name))
@@ -250,12 +243,20 @@ class Locales(defaultdict):
             return self.get_for_lang(key)
         return defaultdict.__getitem__(self, key)
 
-    def stats(self):
-        ret = defaultdict(lambda: defaultdict(int))
+    def progress(self):
+        ret = []
         for lang in LANGS:
+            index = []
+            prog = []
+            ret.append({'id': lang, 'name': LANGS[lang], 'progress': prog})
             for item in self[lang]:
-                for (p,t) in item.progress().items():
-                    ret[lang][p] += t
+                for (a,b,c,d) in item.progress():
+                    if a not in index:
+                        index.append(a)
+                        prog.append( [a,b,c,d] )
+                    else:
+                        prog[index.index(a)][-1] += d
+        return ret
 
     def get_for_lang(self, lang):
         for kind in self.keys():
