@@ -38,10 +38,8 @@
               <td class="ch-total r">{{ po|length }}/{{ po.translated_entries|length }}</td>
               <td class="ch-progress r">{{po.percent_translated|floatformat:0}}%</td>
               <td class="progress">
-                <div title="Total: {{ po|length }}
-Done: {{ po.translated_entries|length }}
-Fuzzy: {{ po.fuzzy_entries|length }}
-Obsolete: {{ po.obsolete_entries|length }}">
+                <div title="{% for x,y in po.progress.items %}{{ x|title }}: {{ y }}
+{% endfor %}">
                 {% if po.done_total > 1 %}
                   <span class="done" style="width: {{ po.done_total|floatformat:0 }}%;">&nbsp;</span>
                 {% endif %}

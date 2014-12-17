@@ -39,6 +39,13 @@
         {% endif %}
         {% block breadcumbs %}{% endblock %}
       </div>
+      {% if messages %}
+        <ul id="messages">
+          {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
       <div id="content" class="flex">
         <div id="content-main">
           {% block main %}{% endblock %}

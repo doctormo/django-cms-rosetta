@@ -18,6 +18,8 @@
 We want to log the changes to translations. For credit and tracking.
 """
 
+from six import text_type as text
+
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
@@ -37,5 +39,8 @@ class Translation(Model):
     added  = PositiveIntegerField(default=0)
 
     def __str__(self):
-        return "%s translated %s[%s]" % (self.user, self.page, self.lang)
+        return _("%(user)s translated %(page)s[%(lang)s]") % self
+
+    def __getitem__(self, key):
+        return text(getattr(self, key))
 

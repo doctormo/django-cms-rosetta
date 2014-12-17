@@ -35,20 +35,14 @@ MAIN_LANGUAGE = None
 MESSAGES_SOURCE_LANGUAGE_CODE = 'en'
 MESSAGES_SOURCE_LANGUAGE_NAME = 'English'
 
-ACCESS_CONTROL_FUNCTION = None
-
 WSGI_AUTO_RELOAD = False
 UWSGI_AUTO_RELOAD = False
-
 
 # Exclude applications defined in this list from being translated
 EXCLUDED_APPLICATIONS = ()
 
 # Line length of the updated PO file
 POFILE_WRAP_WIDTH = 78
-
-# Storage class to handle temporary data storage
-STORAGE_CLASS = None
 
 # Allow overriding of the default filenames, you mostly won't need to change this
 POFILENAMES = ('django.po', 'djangojs.po')
@@ -64,3 +58,8 @@ EXTRA_PATHS = ()
 # Get all our overloaded settings and all of django's globals
 for (name, default) in locals().items():
     locals()[name] = getattr(settings, 'ROSETTA_'+name, default)
+
+from collections import OrderedDict
+S_LANG = MESSAGES_SOURCE_LANGUAGE_CODE
+LANGS     = OrderedDict(l for l in settings.LANGUAGES if l[0] != S_LANG)
+LANGUAGES = list(LANGS)

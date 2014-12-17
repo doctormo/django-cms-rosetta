@@ -15,6 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import pytz
 import django
 import os
 
@@ -27,8 +28,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.importlib import import_module
 from django.utils.timezone import now
 
-from polib import POEntry, POFile, pofile as get_po
+from polib import POFile, pofile as get_po
 
+from .poentry import POEntry
 from .utils import *
 from .settings import *
 
@@ -36,63 +38,26 @@ import sys
 import six
 import hashlib
 
-get_path     = lambda p: os.path.normpath(os.path.abspath(os.path.isfile(p)\
-                 and os.path.dirname(p) or p))
 
 LAST_RELOAD  = now()
 KINDS        = set()
-LANGS        = dict(settings.LANGUAGES)
-C_LANG       = LANGS.pop(MESSAGES_SOURCE_LANGUAGE_CODE, None)
 PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
-
-def get_md5hash(self):
-    return hashlib.md5(
-      (six.text_type(self.msgid) +
-       six.text_type(self.msgstr) +
-       six.text_type(self.msgctxt or "")).encode('utf8')
-    ).hexdigest()
-
-def set_msg(self, msg):
-    if isinstance(msg, list):
-        for (x, d) in enumerate(self.msgstr_plural):
-            msg[x] = fix_nls(d, msg[x])
-            if msg[x] != d:
-                self.msgstr_plural[x] = msg[x]
-                self.updated = True
-    else:
-        msg = fix_nls(self.msgstr, msg)
-        if msg != self.msgstr:
-            self.msgstr = msg
-            self.updated = True
-
-def set_flag(self, flag, value):
-    (a,b) = (flag in self.flags, value)
-    if a and not b:
-        self.flags.remove(flag)
-        self.updated = True
-    elif b and not a:
-        self.flags.append(flag)
-        self.updated = True
-
-# Monkey patch for unique-id for each entry
-POEntry.md5hash = property(get_md5hash)
-POEntry.set_flag = set_flag
-POEntry.set_msg = set_msg
-
 
 class NewPoFile(POFile):
     """A po file full of translatable strings"""
     _filters = (
-       ('untranslated', _('Untranslated only')),
-       ('translated', _('Translated only')),
-       ('obsolete', _('Obsolete only')),
-       ('fuzzy', _('Fuzzy only')),
-       ('all', _('All')),
+       ('untranslated', _('Untranslated only'), False ),
+       ('translated',   _('Translated only'),   True  ),
+       ('obsolete',     _('Obsolete only'),     False ),
+       ('fuzzy',        _('Fuzzy only'),        True  ),
+       ('all',          _('All'),               False ),
     )
 
     def __init__(self, *args, **kwargs):
         POFile.__init__(self, *args, **kwargs)
         self.loaded_time = now()
+        self.filename = os.path.realpath(self.fpath)
+        self.mofile = self.filename[:-2] + 'mo'
 
     def all_entries(self):
         return [ e for e in self if not e.obsolete ]
@@ -102,13 +67,9 @@ class NewPoFile(POFile):
 
     @property
     def filters(self):
-        for (fid, name) in self._filters:
+        for (fid, name, done) in self._filters:
             if len(self.get_filter(fid)):
                 yield (fid, name)
-
-    @property
-    def filename(self):
-        return os.path.realpath(self.fpath)
 
     @property
     def path(self):
@@ -130,12 +91,17 @@ class NewPoFile(POFile):
     @property
     def last_modified(self):
         """Returns the last modified time of the po-file itself"""
-        return datetime.utcfromtimestamp(os.path.getmtime(self.filename))
+        return pytz.utc.localize(datetime.utcfromtimestamp(os.path.getmtime(self.filename)))
+
+    @property
+    def last_compiled(self):
+        """Returns the last compiled time of the mo-file itself"""
+        return pytz.utc.localize(datetime.utcfromtimestamp(os.path.getmtime(self.mofile)))
 
     @property
     def is_fresh(self):
         """Returns true if last modified is above last thread reload"""
-        return self.last_modified <= LAST_RELOAD
+        return self.last_compiled <= LAST_RELOAD
 
     @property
     def is_stale(self):
@@ -145,61 +111,52 @@ class NewPoFile(POFile):
     @property
     def has_updates(self):
         """Returns true if any of the entries have been updated"""
-        return any( [ getattr(e, 'updated', False) for e in self ] )
+        return sum( [ getattr(e, 'updated', False) for e in self ] )
 
     def progress_totals(self):
-        return [ (i[0], i[1], float(i[1]) / len(self) * 100) for i in self.progress() ]
+        return [ (a, b, float(b) / len(self) * 100) for (a,b) in self.progress(True).items() ]
 
     def done_total(self):
-        return float(sum([ i[1] for i in self.progress() ])) / len(self) * 100
+        return float(sum([ b for (a,b) in self.progress(True).items() ])) / len(self) * 100
 
-    def progress(self):
-        return (
-          ('done',     len(self.translated_entries())),
-          ('fuzzy',    len(self.fuzzy_entries())),
-          ('obsolete', len(self.obsolete_entries())),
-        )
+    def progress(self, done=None):
+        return dict( (b, len(self.get_filter(a))) for (a,b,c) in self._filters
+            if done == None or c == done )
 
     def get_url(self):
         return reverse('rosetta-file', kwargs=dict(kind=self.app.kind, page=self.app.name))
 
 
-class LocaleDir(object):
+class LocaleDir(list):
     """A single locale directory"""
     def __init__(self, path, kind):
         self.path = get_path(path)
-        self._po_files = []
-        self._po_langs = {}
         self.kind = kind
 
     def __iter__(self):
-        return self.po_files.__iter__()
+        for lang in LANGS:
+            yield self[lang]
 
     def __getitem__(self, key):
-        return self.po_langs[key]
+        if not len(self):
+            self._generate_all()
+        index  = list(LANGS).index(key)
+        pofile = list.__getitem__(self, index)
+        if pofile.is_stale:
+            self[index] = self.generate(key)
+        return list.__getitem__(self, index)
 
-    @property
-    def po_files(self):
-        if not self._po_files:
-            for lang in LANGS.keys():
-                pofile = self._generate_lang(lang)
-                if not pofile:
-                    continue
-                self._po_files.append( get_po(pofile, klass=NewPoFile, wrapwidth=POFILE_WRAP_WIDTH))
-                self._po_langs[lang] = self._po_files[-1]
-                self._po_files[-1].app = self
-        return self._po_files
+    def generate(self, lang):
+        poname = self._generate_name(lang)
+        pofile = get_po(poname, klass=NewPoFile, wrapwidth=POFILE_WRAP_WIDTH)
+        pofile.app = self
+        return pofile
 
-    @property
-    def po_langs(self):
-        if not self._po_langs:
-            po = self.po_files
-        return self._po_langs
+    def _generate_all(self):
+        for lang in LANGS:
+            self.append(self.generate(lang))
 
-    def get_for_lang(self, lang):
-        return self.po_langs[lang]
-
-    def _generate_lang(self, lang):
+    def _generate_name(self, lang):
         for fn in POFILENAMES:
             for lang_code in self._veriations(lang):
                 filename = self._po_file(lang_code, fn)
@@ -214,7 +171,6 @@ class LocaleDir(object):
         pot_file = self.pot_file()
         if pot_file:
             filename = self._po_file(lang, os.path.basename(pot_file))
-            print "Saving %s" % filename
             if not os.path.isdir(os.path.dirname(filename)):
                 os.makedirs(os.path.dirname(filename))
             new_po = get_po(pot_file)
@@ -269,7 +225,7 @@ class KindList(dict):
     """A subset list showing only items"""
     def __getitem__(self, key):
         if key in LANGS:
-            return [ b.get_for_lang(key) for (a,b) in self.items() ]
+            return [ b[key] for (a,b) in self.items() ]
         return dict.__getitem__(self, key)
 
 class Locales(defaultdict):
@@ -294,10 +250,17 @@ class Locales(defaultdict):
             return self.get_for_lang(key)
         return defaultdict.__getitem__(self, key)
 
+    def stats(self):
+        ret = defaultdict(lambda: defaultdict(int))
+        for lang in LANGS:
+            for item in self[lang]:
+                for (p,t) in item.progress().items():
+                    ret[lang][p] += t
+
     def get_for_lang(self, lang):
         for kind in self.keys():
             for locale in self[kind].values():
-                yield locale.get_for_lang(lang)
+                yield locale[lang]
 
     @p_cache(60 * 60, 'rosetta_locale_paths', list)
     def dirs(self):

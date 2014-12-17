@@ -34,7 +34,7 @@
         {% for l in languages %}
           {% if l.0 != language_source %}
             </tr>
-              <td><a href="/{{ l.0 }}{{ current_url }}">{% trans l.1 %}</a></td>
+              <td><a href="/{{ l.0 }}{{ current_url }}all/">{% trans l.1 %}</a></td>
               <td>{{ l.2 }}</td>
               <td>{{ l.3 }}</td>
             <tr>
