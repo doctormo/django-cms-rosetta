@@ -18,7 +18,10 @@ register.tag('autopaginate', do_autopaginate)
 rx = re.compile(r'(%(\([^\s\)]*\))?[sd])')
 
 def progressbar(context, progress):
-    to_return = OrderedDict((a, dict(name=b, groups=c, total=d)) for (a,b,c,d) in progress)
+    try:
+        to_return = OrderedDict((a, dict(name=b, groups=c, total=d)) for (a,b,c,d) in progress)
+    except ValueError:
+        raise ValueError("Corrupt progress structure, got: %s " % str(progress))
 
     for v in to_return.values():
         for group in v.get('groups', None) or []:
@@ -26,9 +29,10 @@ def progressbar(context, progress):
                 to_return[group] = dict(name=group.title(), total=0)
             to_return[group]['total'] += v['total']
     
-    total = to_return['all']['total']
-    for item in to_return.values():
-        item['percent'] = float(item['total']) / total * 100
+    if 'all' in to_return:
+        total = to_return['all']['total']
+        for item in to_return.values():
+            item['percent'] = float(item['total']) / total * 100
 
     to_return['keys'] = to_return
     return to_return

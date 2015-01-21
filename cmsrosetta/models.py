@@ -44,3 +44,21 @@ class Translation(Model):
     def __getitem__(self, key):
         return text(getattr(self, key))
 
+
+import imp
+from django.conf import settings
+from django.utils.importlib import import_module
+
+for app in settings.INSTALLED_APPS:
+    modname = 'translations'
+    module_name = '%s.%s' % (app, modname)
+    app_mod = import_module(app)
+    try:
+        imp.find_module(modname, app_mod.__path__ if hasattr(app_mod, '__path__') else None)
+    except ImportError:
+        pass
+    else:
+        import_module(module_name)
+
+
+

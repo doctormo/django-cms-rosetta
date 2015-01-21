@@ -85,6 +85,8 @@ class Item(TemplateView, TranslatorMixin):
     def get_context_data(self, **data):
         data = TranslatorMixin.get_context_data(self, **data)
         data['filter']  = self.datum('filter', 'untranslated')
+        if not len(self.pofile.get_filter(data['filter'])):
+            data['filter'] = 'all'
         data['entries'] = self.pofile.get_filter(data['filter'])
         data['pofile']  = self.pofile
         data['page']    = self.request.page

@@ -20,7 +20,7 @@ VERSION = '0.8.1'
 try:
     from django.conf import settings
 except ImportError:
-    settings = {}
+    settings = None
 
 # Number of messages to display per page.
 MESSAGES_PER_PAGE = 10
@@ -61,5 +61,6 @@ for (name, default) in locals().items():
 
 from collections import OrderedDict
 S_LANG = MESSAGES_SOURCE_LANGUAGE_CODE
-LANGS     = OrderedDict(l for l in settings.LANGUAGES if l[0] != S_LANG)
+LANGS     = OrderedDict(l for l in getattr(settings, 'LANGUAGES', []) if l[0] != S_LANG)
 LANGUAGES = list(LANGS)
+

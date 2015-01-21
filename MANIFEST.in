@@ -1,0 +1,7 @@
+include README
+include LICENSE
+include cmsrosetta/*.py
+include cmsrosetta/templatetags/*.py
+include cmsrosetta/static/rosetta/*.*
+include cmsrosetta/templates/rosetta/*.html
+include cmsrosetta/locale/*/LC_MESSAGES/django.po

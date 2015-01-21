@@ -1,6 +1,5 @@
-IDEA:
-
-opyright 2014, Martin Owens <doctormo@gmail.com>
+#
+# Copyright 2014, Martin Owens <doctormo@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,29 +15,44 @@ opyright 2014, Martin Owens <doctormo@gmail.com>
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
-We want to log the changes to translations. For credit and tracking.
+ Look into django-cms models and pick out data for translations.
 """
 
-
-Takes pages of content:
-
- 1. Create TranslatedContentPlugin
-  a. Takes the english version of the site
-  b. Generates a list of translatable messages
-  c. Translates them with cache into a page for this language
-  
- 2. Lists all pages
-  a. Fill in all empty page*language slots with TranslatedContentPlugin
-  b. Generate a list of translatable messages (see 1b)
-  c. Generate whole pot file for translation
-  d. Generate mo file (rosetta should handle this)
-  e. Make sure this is available for translations
-  f. Translate titles, menus of all pages, regardless.
-
+from django.contrib.sites.models import Site
 from cms.models import Page
 
-page = Page.objects.all()[...]
+from .poutil import PLUGINS, LANGS
 
+class CmsPage(object):
+    def __init__(self, page, lang=None):
+        self.page = page
+        self.lang = lang
+        self.app  = self
+
+    def __getitem__(self, lang):
+        if lang not in LANGS:
+            raise KeyError("Unknown language: %s" % str(lang))
+        if lang == self.lang:
+            return self
+        return type(self)(self.page, lang)
+
+    def name(self):
+        return self.page.get_title(self.lang)
+
+    def progress(self):
+        pass
+
+
+def CmsGenerator():
+    """Generate po for django-cms"""
+    site = Site.objects.get_current()
+
+    for page in Page.objects.public().filter(site=site):
+        yield (page.get_title('en'), CmsPage(page))
+
+PLUGINS['cms'] = CmsGenerator
+
+"""
 draft_page = page.get_draft_object()
 published_page = page.get_public_object()
 list[str] = page.get_languages()
@@ -53,4 +67,5 @@ d = [ d.get_plugin_instance()[0] for c in b.placeholders.all() for d in c.get_pl
 
 p = d[0].get_plugin_class_instance()
 (i, p) = d[0].get_plugin_instance()
+"""
 

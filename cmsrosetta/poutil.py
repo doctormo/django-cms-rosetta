@@ -41,7 +41,9 @@ import hashlib
 
 LAST_RELOAD  = now()
 KINDS        = set()
+PLUGINS      = dict()
 PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
+
 
 class NewPoFile(POFile):
     """A po file full of translatable strings"""
@@ -63,7 +65,7 @@ class NewPoFile(POFile):
         return [ e for e in self if not e.obsolete ]
 
     def get_filter(self, fid):
-        return getattr(self, fid+'_entries')()
+        return getattr(self, fid+'_entries', lambda: [])()
 
     @property
     def filters(self):
@@ -127,6 +129,7 @@ class LocaleDir(list):
         self.kind = kind
 
     def __iter__(self):
+        # THIS LOOKS BROKEN XXX
         for lang in LANGS:
             yield self[lang]
 
@@ -205,15 +208,6 @@ class LocaleDir(list):
     def __repr__(self):
         return "LocaleDir('%s')" % (self.path)
 
-
-class CmsGenerator(object):
-    """Generate po for django-cms"""
-    def __getitem__(self, page):
-        pass
-
-    def values(self):
-        return []
-
 class KindList(dict):
     """A subset list showing only items"""
     def __getitem__(self, key):
@@ -233,7 +227,12 @@ class Locales(defaultdict):
                         path, kind, locale.name))
                 self[kind][locale.name] = locale
                 KINDS.add(kind)
-        self['cms'] = CmsGenerator()
+
+        # Add any registered plugins
+        for (key, plugin) in PLUGINS.items():
+            KINDS.add(key)
+            for (name, locale) in plugin():
+                self[kind][name] = locale
 
     def __repr__(self):
         return "Locales()"
@@ -274,7 +273,7 @@ class Locales(defaultdict):
             yield (path, 'other')
 
         for root, dirnames, filename in os.walk(get_path(django.__file__)):
-            if 'locale' in dirnames:
+            if 'locale' in dirnames and 'contrib' not in root:
                 yield (os.path.join(root, 'locale'), 'django')
 
         # project/app/locale
@@ -284,7 +283,7 @@ class Locales(defaultdict):
             apppath = os.path.join(get_path(import_module(appname).__file__), 'locale')
 
             if 'contrib' in apppath and 'django' in apppath:
-                yield (apppath, 'contrib')
+                yield (apppath, 'django') # Used to be 'contrib'
             elif PROJECT_PATH not in apppath:
                 yield (apppath, 'third-party')
             else:
