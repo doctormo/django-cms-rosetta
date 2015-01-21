@@ -36,7 +36,7 @@ setup(
       'polib>=1.0.4',
       'django-cms>=3.0',
       'django-haystack>=2.0',
-      'django-request-tree>=0.7',
+      'django-request-tree>=0.8',
     ],
     classifiers = [
         'Development Status :: 4 - Beta',
