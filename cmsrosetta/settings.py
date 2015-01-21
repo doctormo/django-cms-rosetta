@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-VERSION = '0.8.1'
+from .version import VERSION
 
 try:
     from django.conf import settings
