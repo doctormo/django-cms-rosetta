@@ -249,7 +249,7 @@ class Locales(defaultdict):
             prog = []
             ret.append({'id': lang, 'name': LANGS[lang], 'progress': prog})
             for item in self[lang]:
-                for (a,b,c,d) in item.progress():
+                for (a,b,c,d) in item.progress() or []:
                     if a not in index:
                         index.append(a)
                         prog.append( [a,b,c,d] )
