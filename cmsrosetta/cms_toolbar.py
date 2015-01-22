@@ -1,0 +1,60 @@
+#
+# Copyright 2015, Martin Owens <doctormo@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+"""
+"""
+
+from cms.models import Page
+from cms.cms_toolbar import PageToolbar, PlaceholderToolbar
+from cms.toolbar_pool import toolbar_pool
+from cms.toolbar.toolbar import CMSToolbar
+
+def pages(self):
+    if self.publisher_is_draft:
+        return (self, self.publisher_public)
+    return (self.publisher_draft, self)
+Page.pages = pages
+
+def auto_translate(self, language):
+    # Not checking public for languages means auto is default
+    languages = str(self.pages()[0].languages).split(',')
+    return str(language) not in languages
+Page.auto_translate = auto_translate
+
+def tb_auto_translate(self):
+    return self.request.current_page.auto_translate(self.language)
+CMSToolbar.auto_translate = tb_auto_translate
+
+class NewPhTb(PlaceholderToolbar):
+    def add_structure_mode_item(self, *args, **kwargs):
+        if not self.toolbar.auto_translate:
+            super(NewPhTb, self).add_structure_mode_item(*args, **kwargs)
+
+class NewPageTb(PageToolbar):
+    def add_draft_live_item(self, *args, **kwargs):
+        kwargs['template'] = 'cms/toolbar/items/live_draft_translate.html'
+        kwargs['extra_context'] = { 'toolbar': self.toolbar }
+        return super(NewPageTb, self).add_draft_live_item(*args, **kwargs)
+
+    def add_publish_button(self, *args, **kwargs):
+        if not self.toolbar.auto_translate:
+            super(NewPageTb, self).add_draft_live_item(*args, **kwargs)
+
+# Remove existing page toolbar
+toolbar_pool.unregister(PageToolbar)
+toolbar_pool.register(NewPageTb)
+toolbar_pool.unregister(PlaceholderToolbar)
+toolbar_pool.register(NewPhTb)

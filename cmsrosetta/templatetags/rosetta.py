@@ -19,7 +19,8 @@ rx = re.compile(r'(%(\([^\s\)]*\))?[sd])')
 
 def progressbar(context, progress):
     try:
-        to_return = OrderedDict((a, dict(name=b, groups=c, total=d)) for (a,b,c,d) in progress)
+        to_return = OrderedDict((a, dict(name=b, groups=c, total=d))\
+            for (a,b,c,d) in progress or [])
     except ValueError:
         raise ValueError("Corrupt progress structure, got: %s " % str(progress))
 
