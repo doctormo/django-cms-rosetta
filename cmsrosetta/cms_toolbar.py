@@ -17,6 +17,8 @@
 """
 """
 
+from django.utils.translation import ugettext_lazy as _
+
 from cms.models import Page
 from cms.cms_toolbar import PageToolbar, PlaceholderToolbar
 from cms.toolbar_pool import toolbar_pool
@@ -33,6 +35,10 @@ def auto_translate(self, language):
     languages = str(self.pages()[0].languages).split(',')
     return str(language) not in languages
 Page.auto_translate = auto_translate
+def auto_empty(self, language):
+    languages = str(self.pages()[1].languages).split(',')
+    return str(language) not in languages
+Page.auto_empty = auto_empty
 
 def tb_auto_translate(self):
     return self.request.current_page.auto_translate(self.language)
@@ -58,3 +64,18 @@ toolbar_pool.unregister(PageToolbar)
 toolbar_pool.register(NewPageTb)
 toolbar_pool.unregister(PlaceholderToolbar)
 toolbar_pool.register(NewPhTb)
+
+from cms.templatetags.cms_admin import TreePublishRow
+from cms.utils.compat.dj import force_unicode
+from django.utils.safestring import mark_safe
+
+old_render = TreePublishRow.render_tag
+
+def render_tag(self, context, page, language):
+    if page.auto_translate(language) and not page.auto_empty(language):
+        return mark_safe('<span style="background-color:#ad7fa8;" class="%s" title="%s"></span>' % (
+            'translated', force_unicode(_('Managed Translation'))))
+    return old_render(self, context, page, language)
+
+TreePublishRow.render_tag = render_tag
+
