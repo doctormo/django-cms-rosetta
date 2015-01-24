@@ -41,7 +41,6 @@ import hashlib
 
 LAST_RELOAD  = now()
 KINDS        = set()
-PLUGINS      = dict()
 PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
 
 
@@ -218,6 +217,7 @@ class KindList(dict):
 class Locales(defaultdict):
     """A full list of all possible locales in all projects"""
     def __init__(self):
+        self._setup = True
         defaultdict.__init__(self, KindList)
         for (path, kind) in self.dirs():
             if os.path.isdir(path):
@@ -229,10 +229,12 @@ class Locales(defaultdict):
                 KINDS.add(kind)
 
         # Add any registered plugins
-        for (key, plugin) in PLUGINS.items():
-            KINDS.add(key)
+        for (kind, plugin) in PLUGINS.items():
+            KINDS.add(kind)
             for (name, locale) in plugin():
                 self[kind][name] = locale
+
+        self._setup = False
 
     def __repr__(self):
         return "Locales()"
@@ -240,7 +242,9 @@ class Locales(defaultdict):
     def __getitem__(self, key):
         if key in LANGS:
             return self.get_for_lang(key)
-        return defaultdict.__getitem__(self, key)
+        if self._setup or key in self:
+            return defaultdict.__getitem__(self, key)
+        raise KeyError("No such plugin found: %s (%s)" % (key, str(self.keys())))
 
     def progress(self):
         ret = []

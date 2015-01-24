@@ -63,4 +63,5 @@ from collections import OrderedDict
 S_LANG = MESSAGES_SOURCE_LANGUAGE_CODE
 LANGS     = OrderedDict(l for l in getattr(settings, 'LANGUAGES', []) if l[0] != S_LANG)
 LANGUAGES = list(LANGS)
+PLUGINS = {}
 

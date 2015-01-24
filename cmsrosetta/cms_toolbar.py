@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
+Fix some issues in django-cms for translations with rosetta.
 """
 
 from django.utils.translation import ugettext_lazy as _

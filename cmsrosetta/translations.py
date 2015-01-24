@@ -21,7 +21,8 @@
 from django.contrib.sites.models import Site
 from cms.models import Page
 
-from .poutil import PLUGINS, LANGS
+from cmsrosetta.settings import LANGS
+from cmsrosetta.poplugin import TranslationPlugin
 
 class CmsPage(object):
     def __init__(self, page, lang=None):
@@ -43,14 +44,17 @@ class CmsPage(object):
         pass
 
 
-def CmsGenerator():
+class CmsTranslations(TranslationPlugin):
     """Generate po for django-cms"""
-    site = Site.objects.get_current()
+    slug = 'cms'
 
-    for page in Page.objects.public().filter(site=site):
-        yield (page.get_title('en'), CmsPage(page))
+    def __init__(self):
+        self.site = Site.objects.get_current()
 
-PLUGINS['cms'] = CmsGenerator
+    def __iter__(self):
+        for page in Page.objects.public().filter(site=self.site):
+            yield (page.get_title('en'), CmsPage(page))
+
 
 """
 draft_page = page.get_draft_object()

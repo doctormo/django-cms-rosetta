@@ -18,6 +18,8 @@
 We want to log the changes to translations. For credit and tracking.
 """
 
+import sys
+
 from six import text_type as text
 
 from django.contrib.auth.models import User
@@ -48,6 +50,8 @@ class Translation(Model):
 import imp
 from django.conf import settings
 from django.utils.importlib import import_module
+from .poplugin import TranslationPlugin
+from .settings import PLUGINS
 
 for app in settings.INSTALLED_APPS:
     modname = 'translations'
@@ -55,10 +59,14 @@ for app in settings.INSTALLED_APPS:
     app_mod = import_module(app)
     try:
         imp.find_module(modname, app_mod.__path__ if hasattr(app_mod, '__path__') else None)
-    except ImportError:
-        pass
+    except ImportError as error:
+        if str(error) != 'No module named translations':
+            raise
     else:
-        import_module(module_name)
+        for (key, value) in import_module(module_name).__dict__.items():
+            if type(value) is type and issubclass(value, TranslationPlugin)\
+              and value is not TranslationPlugin:
+                PLUGINS[value.slug] = value
 
 
 
