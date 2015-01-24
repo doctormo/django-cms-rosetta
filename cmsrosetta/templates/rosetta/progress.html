@@ -4,8 +4,8 @@
   <td class="progress">
     <div title="{% for k,v in keys.items %}{% if v.name %}{{ v.name }}: {{ v.total }} ({{ v.percent|floatformat:0 }}%)
 {% endif %}{% endfor %}">
-      {% if done.total > 1 %}
-        <span class="done" style="width: {{ done.percent|floatformat:0 }}%;">&nbsp;</span>
+      {% if done.total > 0 %}
+        <span class="done" style="width: {{ done.width|floatformat:0 }}%;">&nbsp;</span>
       {% endif %}
     </div>
   </td>

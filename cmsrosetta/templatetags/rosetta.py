@@ -34,6 +34,7 @@ def progressbar(context, progress):
         total = to_return['all']['total']
         for item in to_return.values():
             item['percent'] = float(item['total']) / total * 100
+            item['width'] = (float(item['total']) / total * 93) + 7
 
     to_return['keys'] = to_return
     return to_return
