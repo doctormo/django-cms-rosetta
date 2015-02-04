@@ -22,36 +22,47 @@ from HTMLParser import HTMLParser
 from collections import defaultdict
 
 class PotParser(HTMLParser):
-    BODY_TAGS = ('b', 'i', 'u', 'strong', 'em', 'small', 'mark', 'del', 'ins', 'sub', 'sup', 'a')
+    BODY_TAGS = ('b', 'i', 'u', 'strong', 'em', 'small', 'mark',
+                 'del', 'ins', 'sub', 'sup')
 
     def parse(self, body):
         self._current_tags = []
         self._tag_indexes = defaultdict(int)
-        self._texts = defaultdict(str)
+        self._texts = defaultdict(unicode)
         self.feed(body)
         return dict(self._texts)
 
     def handle_starttag(self, tag, attrs):
         if tag in self.BODY_TAGS:
             # Add 'body' tags to the text, include in translation
-            attr = ' '.join("%s=\"%s\"" % (name, value) for (name, value) in attrs)
-            self._texts[self._current_tag_id] += ("<%s%s%s>" % (tag, attr and ' ', attr))
+            attr = ' '.join("%s=\"%s\"" % a for a in attrs)
+            self._texts[self._cti] += ("<%s%s%s>" % (tag, attr and ' ', attr))
         else:
-            # Any other tags are 'splitters' which cleave the text into a new translation.
+            old_cti = self._cti if self._cti in self._texts else None
+            # Tags are 'splitters' to cleave the text for new translation.
             self._current_tags.append(tag)
             # We append a counter here to keep tag chains unique
             self._tag_indexes[self._current_tag] += 1
+            # We want to record the location for sub-splitters
+            if old_cti:
+                self._texts[old_cti] += '{{ %s }}' % self._cti
 
     def handle_endtag(self, tag):
         if tag in self.BODY_TAGS:
-            self._texts[self._current_tag_id] += ("</%s>" % tag)
+            self._texts[self._cti] += ("</%s>" % tag)
         elif tag in self._current_tags:
             i = self._current_tags.index(tag, -1)
             self._current_tags = self._current_tags[:i]
 
     def handle_data(self, data):
-        self._texts[self._current_tag_id] += data 
+        if data.strip():
+            self._texts[self._cti] += data 
 
+    def handle_charref(self, ref):
+        self.handle_entityref("#" + ref)
+
+    def handle_entityref(self, ref):
+        self.handle_data(self.unescape("&%s;" % ref))
 
     @property
     def _current_tag(self):
@@ -64,7 +75,7 @@ class PotParser(HTMLParser):
         return self._tag_indexes[self._current_tag]
 
     @property
-    def _current_tag_id(self):
+    def _cti(self):
         "Returns the combined tag and counter id suffix for this text block"
         if self._current_id and self._current_tag:
             return "%s-%d" % (self._current_tag, self._current_id)
