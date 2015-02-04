@@ -22,27 +22,29 @@ from django.contrib.sites.models import Site
 from cms.models import Page
 
 from cmsrosetta.settings import LANGS
-from cmsrosetta.poplugin import TranslationPlugin
+from cmsrosetta.poplugin import *
 
-class CmsPage(object):
-    def __init__(self, page, lang=None):
-        self.page = page
-        self.lang = lang
-        self.app  = self
+from cmsrosetta.po_translations import LocaleDir
 
-    def __getitem__(self, lang):
-        if lang not in LANGS:
-            raise KeyError("Unknown language: %s" % str(lang))
-        if lang == self.lang:
-            return self
-        return type(self)(self.page, lang)
+class LocaleDirectories(TranslationPlugin):
+    slug = 'project'
 
-    def name(self):
-        return self.page.get_title(self.lang)
+    def dirs(self):
+        return locale_dirs()
 
-    def progress(self):
-        pass
+    def generate(self):
+        for (path, kind) in self.dirs():
+            if kind == self.slug and os.path.isdir(path):
+                locale = LocaleDir(path, kind)
+                self[locale.name] = locale
 
+class DjangoDirectories(LocaleDirectories):
+    slug = 'django'
+
+class ThirdPartyDirectories(LocaleDirectories):
+    slug = 'third-party'
+
+from cmsrosetta.cms_translations import CmsPage
 
 class CmsTranslations(TranslationPlugin):
     """Generate po for django-cms"""
@@ -51,25 +53,7 @@ class CmsTranslations(TranslationPlugin):
     def __init__(self):
         self.site = Site.objects.get_current()
 
-    def __iter__(self):
+    def generate(self):
         for page in Page.objects.public().filter(site=self.site):
-            yield (page.get_title('en'), CmsPage(page))
-
-
-"""
-draft_page = page.get_draft_object()
-published_page = page.get_public_object()
-list[str] = page.get_languages()
-
-str = page.get_page_title(lang)
-str = page.get_title(lang)
-str = page.get_menu_title(lang)
-str = page.get_meta_description(lang)
-bool = page.is_published(lang)
-
-d = [ d.get_plugin_instance()[0] for c in b.placeholders.all() for d in c.get_plugins('en') ]
-
-p = d[0].get_plugin_class_instance()
-(i, p) = d[0].get_plugin_instance()
-"""
+            self[page.title] = CmsPage(page)
 

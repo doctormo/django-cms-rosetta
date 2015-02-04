@@ -24,9 +24,9 @@ from django.contrib.sites.models import Site
 from django.utils.decorators import method_decorator
 from cms.utils import get_language_from_request
 
-from .poutil import Locales, LANGS, KINDS
-
+from .models import Locales, LANGS, PLUGINS
 from .settings import *
+
 
 class TranslatorMixin(object):
     """Prevent people who do not have translator rights from
@@ -57,6 +57,6 @@ class TranslatorMixin(object):
           'current_url'     : path,
           'language_source' : MESSAGES_SOURCE_LANGUAGE_CODE,
           'msg_per_page'    : MESSAGES_PER_PAGE, 
-          'kinds'           : KINDS,
+          'kinds'           : PLUGINS.keys(),
           'site'            : Site.objects.get_current()
         }

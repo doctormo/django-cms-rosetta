@@ -42,8 +42,9 @@ def auto_empty(self, language):
 Page.auto_empty = auto_empty
 
 def tb_auto_translate(self):
-    return self.request.current_page.auto_translate(self.language)
-CMSToolbar.auto_translate = tb_auto_translate
+    if self.request.current_page:
+        return self.request.current_page.auto_translate(self.language)
+CMSToolbar.auto_translate = property(tb_auto_translate)
 
 class NewPhTb(PlaceholderToolbar):
     def add_structure_mode_item(self, *args, **kwargs):
@@ -58,13 +59,13 @@ class NewPageTb(PageToolbar):
 
     def add_publish_button(self, *args, **kwargs):
         if not self.toolbar.auto_translate:
-            super(NewPageTb, self).add_draft_live_item(*args, **kwargs)
+            super(NewPageTb, self).add_publish_button(*args, **kwargs)
 
 # Remove existing page toolbar
-toolbar_pool.unregister(PageToolbar)
-toolbar_pool.register(NewPageTb)
 toolbar_pool.unregister(PlaceholderToolbar)
 toolbar_pool.register(NewPhTb)
+toolbar_pool.unregister(PageToolbar)
+toolbar_pool.register(NewPageTb)
 
 from cms.templatetags.cms_admin import TreePublishRow
 from cms.utils.compat.dj import force_unicode

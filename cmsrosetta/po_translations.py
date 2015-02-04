@@ -31,8 +31,9 @@ from django.utils.timezone import now
 from polib import POFile, pofile as get_po
 
 from .poentry import POEntry
-from .utils import *
+from .poplugin import *
 from .settings import *
+from .utils import *
 
 import sys
 import six
@@ -40,8 +41,6 @@ import hashlib
 
 
 LAST_RELOAD  = now()
-KINDS        = set()
-PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
 
 
 class NewPoFile(POFile):
@@ -121,35 +120,17 @@ class NewPoFile(POFile):
         return reverse('rosetta-file', kwargs=dict(kind=self.app.kind, page=self.app.name))
 
 
-class LocaleDir(list):
+class LocaleDir(TranslationDirectory):
     """A single locale directory"""
     def __init__(self, path, kind):
         self.path = get_path(path)
         self.kind = kind
-
-    def __iter__(self):
-        # THIS LOOKS BROKEN XXX
-        for lang in LANGS:
-            yield self[lang]
-
-    def __getitem__(self, key):
-        if not len(self):
-            self._generate_all()
-        index  = list(LANGS).index(key)
-        pofile = list.__getitem__(self, index)
-        if pofile.is_stale:
-            self[index] = self.generate(key)
-        return list.__getitem__(self, index)
 
     def generate(self, lang):
         poname = self._generate_name(lang)
         pofile = get_po(poname, klass=NewPoFile, wrapwidth=POFILE_WRAP_WIDTH)
         pofile.app = self
         return pofile
-
-    def _generate_all(self):
-        for lang in LANGS:
-            self.append(self.generate(lang))
 
     def _generate_name(self, lang):
         for fn in POFILENAMES:
@@ -187,17 +168,6 @@ class LocaleDir(list):
                     self._pot_file = item
         return self._pot_file
 
-    def _veriations(self, lang):
-        """Generator to return en, en_GB, en_gb, en-gb, en-GB veriations"""
-        lang = lang.replace('_', '-')
-        if '-' in lang:
-            bits = lang.lower().split('-', 1)
-            for sep in '-_':
-                yield bits[0] + sep + bits[1]
-                yield bits[0] + sep + bits[1].upper()
-        else:
-            yield lang
-
     @property
     def name(self):
         path = self.path.replace('/locale', '')
@@ -206,90 +176,4 @@ class LocaleDir(list):
 
     def __repr__(self):
         return "LocaleDir('%s')" % (self.path)
-
-class KindList(dict):
-    """A subset list showing only items"""
-    def __getitem__(self, key):
-        if key in LANGS:
-            return [ b[key] for (a,b) in self.items() ]
-        return dict.__getitem__(self, key)
-
-class Locales(defaultdict):
-    """A full list of all possible locales in all projects"""
-    def __init__(self):
-        self._setup = True
-        defaultdict.__init__(self, KindList)
-        for (path, kind) in self.dirs():
-            if os.path.isdir(path):
-                locale = LocaleDir(path, kind)
-                if locale.name in self[kind]:
-                    raise KeyError("Locale id/name used: %s (%s.%s)" % (
-                        path, kind, locale.name))
-                self[kind][locale.name] = locale
-                KINDS.add(kind)
-
-        # Add any registered plugins
-        for (kind, plugin) in PLUGINS.items():
-            KINDS.add(kind)
-            for (name, locale) in plugin():
-                self[kind][name] = locale
-
-        self._setup = False
-
-    def __repr__(self):
-        return "Locales()"
-
-    def __getitem__(self, key):
-        if key in LANGS:
-            return self.get_for_lang(key)
-        if self._setup or key in self:
-            return defaultdict.__getitem__(self, key)
-        raise KeyError("No such plugin found: %s (%s)" % (key, str(self.keys())))
-
-    def progress(self):
-        ret = []
-        for lang in LANGS:
-            index = []
-            prog = []
-            ret.append({'id': lang, 'name': LANGS[lang], 'progress': prog})
-            for item in self[lang]:
-                for (a,b,c,d) in item.progress() or []:
-                    if a not in index:
-                        index.append(a)
-                        prog.append( [a,b,c,d] )
-                    else:
-                        prog[index.index(a)][-1] += d
-        return ret
-
-    def get_for_lang(self, lang):
-        for kind in self.keys():
-            for locale in self[kind].values():
-                yield locale[lang]
-
-    @p_cache(60 * 60, 'rosetta_locale_paths', list)
-    def dirs(self):
-        for path in getattr(settings, 'LOCALE_PATHS', ()) + (
-                  os.path.join(PROJECT_PATH, 'locale'),
-                  os.path.join(PROJECT_PATH, '..', 'locale')):
-            yield (path, 'project')
-
-        for path in EXTRA_PATHS:
-            yield (path, 'other')
-
-        for root, dirnames, filename in os.walk(get_path(django.__file__)):
-            if 'locale' in dirnames and 'contrib' not in root:
-                yield (os.path.join(root, 'locale'), 'django')
-
-        # project/app/locale
-        for appname in settings.INSTALLED_APPS:
-            if EXCLUDED_APPLICATIONS and appname in EXCLUDED_APPLICATIONS:
-                continue
-            apppath = os.path.join(get_path(import_module(appname).__file__), 'locale')
-
-            if 'contrib' in apppath and 'django' in apppath:
-                yield (apppath, 'django') # Used to be 'contrib'
-            elif PROJECT_PATH not in apppath:
-                yield (apppath, 'third-party')
-            else:
-                yield (apppath, 'project')
 

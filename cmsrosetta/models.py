@@ -18,16 +18,21 @@
 We want to log the changes to translations. For credit and tracking.
 """
 
+import imp
 import sys
 
 from six import text_type as text
 
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.utils.importlib import import_module
 from django.utils.timezone import now
 from django.db.models import *
 
 from cms.utils.permissions import get_current_user as get_user
+
+from .poplugin import TranslationPlugin
+from .settings import PLUGINS, LANGS, settings
 
 class Translation(Model):
     user   = ForeignKey(User, default=get_user)
@@ -47,12 +52,6 @@ class Translation(Model):
         return text(getattr(self, key))
 
 
-import imp
-from django.conf import settings
-from django.utils.importlib import import_module
-from .poplugin import TranslationPlugin
-from .settings import PLUGINS
-
 for app in settings.INSTALLED_APPS:
     modname = 'translations'
     module_name = '%s.%s' % (app, modname)
@@ -67,6 +66,42 @@ for app in settings.INSTALLED_APPS:
             if type(value) is type and issubclass(value, TranslationPlugin)\
               and value is not TranslationPlugin:
                 PLUGINS[value.slug] = value
+
+
+class Locales(dict):
+    """A full list of all possible locales in all projects"""
+    def __init__(self):
+        # Add any registered plugins
+        for (kind, plugin) in PLUGINS.items():
+            self[kind] = plugin()
+
+    def __repr__(self):
+        return "Locales()"
+
+    def __getitem__(self, key):
+        if key in LANGS:
+            return self.get_for_lang(key)
+        return dict.__getitem__(self, key)
+
+    def progress(self):
+        ret = []
+        for lang in LANGS:
+            index = []
+            prog = []
+            ret.append({'id': lang, 'name': LANGS[lang], 'progress': prog})
+            for item in self[lang]:
+                for (a,b,c,d) in item.progress() or []:
+                    if a not in index:
+                        index.append(a)
+                        prog.append( [a,b,c,d] )
+                    else:
+                        prog[index.index(a)][-1] += d
+        return ret
+
+    def get_for_lang(self, lang):
+        for kind in self.keys():
+            for locale in self[kind].values():
+                yield locale[lang]
 
 
 

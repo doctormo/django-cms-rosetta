@@ -20,14 +20,67 @@ Base classes for translation plugins for your application.
 
 from .settings import LANGS
 
-class TranslationPlugin(object):
+class TranslationPlugin(dict):
     """Base class to list available translatable items"""
     langs = LANGS
 
-    @property
+    def __setitem__(self, key, value):
+        if key in self:
+            raise KeyError("Locale id/name used: %s" % key)
+        return dict.__setitem__(self, key, value)
+
+    def __getitem__(self, key):
+        if not len(self):
+            self.generate()
+        if key in LANGS:
+            return [ b[key] for (a,b) in self.items() ]
+        return dict.__getitem__(self, key)
+
+    def __iter__(self):
+        if not len(self):
+            self.generate()
+        return dict.__iter__(self)
+
     def slug(self):
         raise NotImplementedError("Slug is required for translation plugins")
 
+    def generate(self):
+        raise NotImplementedError("Generate is required for translation plugins")
+
+
+class TranslationDirectory(list):
+    name = 'None'
+
+    def generate(self):
+        raise NotImplementedError("Generate is required for translation directories")
+
     def __iter__(self):
-        raise NotImplementedError("Iter is required for translation plugins")
+        # THIS LOOKS BROKEN XXX
+        for lang in LANGS:
+            yield self[lang]
+
+    def __getitem__(self, key):
+        if not len(self):
+            self._generate_all()
+        index  = list(LANGS).index(key)
+        pofile = list.__getitem__(self, index)
+        if pofile.is_stale:
+            self[index] = self.generate(key)
+        return list.__getitem__(self, index)
+
+    def _veriations(self, lang):
+        """Generator to return en, en_GB, en_gb, en-gb, en-GB veriations"""
+        lang = lang.replace('_', '-')
+        if '-' in lang:
+            bits = lang.lower().split('-', 1)
+            for sep in '-_':
+                yield bits[0] + sep + bits[1]
+                yield bits[0] + sep + bits[1].upper()
+        else:
+            yield lang
+
+    def _generate_all(self):
+        for lang in LANGS:
+            self.append(self.generate(lang))
+
 
