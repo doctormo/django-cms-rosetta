@@ -33,10 +33,14 @@ Page.pages = pages
 
 def auto_translate(self, language):
     # Not checking public for languages means auto is default
+    if not self.pages()[0]:
+        return False
     languages = str(self.pages()[0].languages).split(',')
     return str(language) not in languages
 Page.auto_translate = auto_translate
 def auto_empty(self, language):
+    if not self.pages()[1]:
+        return False
     languages = str(self.pages()[1].languages).split(',')
     return str(language) not in languages
 Page.auto_empty = auto_empty
