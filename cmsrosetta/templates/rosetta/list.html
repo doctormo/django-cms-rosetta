@@ -1,5 +1,5 @@
 {% extends "rosetta/base.html" %}
-{% load i18n sekizai_tags rosetta %}
+{% load i18n sekizai_tags rosetta future %}
 
 {% block pagetitle %}{{block.super}} - {% trans "App Selection" %}{% endblock %}
 
@@ -33,7 +33,7 @@
         </thead>
         <tbody>
           {% for po in objects %}
-            <tr class="{% cycle row1,row2 %}">
+            <tr class="{% cycle "row1" "row2" %}">
               <td><a href="{{po.get_url }}">{{ po.app.name|title }}</a></td>
               {% progressbar po.progress %}
               <td class="hint">{{ po.path }}</td>

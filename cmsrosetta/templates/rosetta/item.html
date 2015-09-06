@@ -1,5 +1,5 @@
 {% extends "rosetta/base.html" %}{% load admin_static %}
-{% load rosetta i18n %}
+{% load future rosetta i18n %}
 
 {% block header %}
   {{ block.super }}
@@ -60,7 +60,7 @@
           </thead>
           <tbody>
             {% for message in items %}
-              <tr class="{% cycle row1,row2 %}">
+              <tr class="{% cycle "row1" "row2" %}">
                 {% if message.msgid_plural %}
                   <td class="original plural">
                     <div class="plural-container">
