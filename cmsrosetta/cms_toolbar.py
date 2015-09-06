@@ -38,6 +38,7 @@ def auto_translate(self, language):
     languages = str(self.pages()[0].languages).split(',')
     return str(language) not in languages
 Page.auto_translate = auto_translate
+
 def auto_empty(self, language):
     if not self.pages()[1]:
         return False
@@ -56,10 +57,9 @@ class NewPhTb(PlaceholderToolbar):
             super(NewPhTb, self).add_structure_mode_item(*args, **kwargs)
 
 class NewPageTb(PageToolbar):
-    def add_draft_live_item(self, *args, **kwargs):
-        kwargs['template'] = 'cms/toolbar/items/live_draft_translate.html'
-        kwargs['extra_context'] = { 'toolbar': self.toolbar }
-        return super(NewPageTb, self).add_draft_live_item(*args, **kwargs)
+    def add_draft_live(self, *args, **kwargs):
+        return self.add_draft_live_item(
+            template='cms/toolbar/items/live_draft_translate.html')
 
     def add_publish_button(self, *args, **kwargs):
         if not self.toolbar.auto_translate:
