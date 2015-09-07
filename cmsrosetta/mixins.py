@@ -22,6 +22,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from cms.utils import get_language_from_request
 
 from .models import Locales, LANGS, PLUGINS
@@ -53,7 +54,9 @@ class TranslatorMixin(object):
         return {
           'languages'       : settings.LANGUAGES,
           'language'        : self.language,
-          'language_name'   : LANGS.get(self.language, 'Error'),
+          'language_name'   : LANGS.get(self.language, 'Unknown'),
+          'language_namo'   : _(LANGS.get(self.language, 'Unknown')),
+          'language_logo'   : 'images/rosetta/%s.svg' % self.language,
           'current_url'     : path,
           'language_source' : MESSAGES_SOURCE_LANGUAGE_CODE,
           'msg_per_page'    : MESSAGES_PER_PAGE, 

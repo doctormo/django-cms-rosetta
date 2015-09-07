@@ -30,6 +30,7 @@ class Stats(TemplateView, TranslatorMixin):
         data = TranslatorMixin.get_context_data(self, **data)
         data['language'] = None
         data['languages'] = self.locales.progress()
+        data['kind'] = self.datum('filter')
         return data
 
 class List(TemplateView, TranslatorMixin):

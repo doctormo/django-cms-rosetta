@@ -18,12 +18,14 @@
  Look into django-cms models and pick out data for translations.
 """
 
+import os
+
 from django.contrib.sites.models import Site
 from cms.models import Page
 
+from cmsrosetta.utils import locale_dirs
 from cmsrosetta.settings import LANGS
-from cmsrosetta.poplugin import *
-
+from cmsrosetta.poplugin import TranslationPlugin
 from cmsrosetta.po_translations import LocaleDir
 
 class LocaleDirectories(TranslationPlugin):

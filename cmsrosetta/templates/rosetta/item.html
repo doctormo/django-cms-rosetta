@@ -19,43 +19,48 @@
 ({{ pofile.percent_translated|floatformat:0 }}%){% endblock %}
 
 {% block breadcumbs %}
-  &rsaquo; <a href="{% url 'rosetta-list' pofile.app.kind %}">{{ pofile.app.kind|title }}</a>
-  &rsaquo; {{ pofile.app.name|title }} ({{ pofile.percent_translated|floatformat:2 }}%)
+  <li><a href="{% url 'rosetta-list' pofile.app.kind %}">{{ pofile.app.kind|title }}</a></li>
+  <li><a>{{ pofile.app.name|title }}</a></li>
 {% endblock %}
 
 {% block main %}
+
+  <script>
+    $(document).ready(function() {
+      $('.show_more').click(function() {
+        $(this).parent().prev().toggleClass('visible');
+      });
+    });
+  </script>
+
+  <div id="topbar">
+    <form class="search" method="post" action="">
+      {% csrf_token %}
+      <input type="text" name="query" value="{{ query|default:'' }}" placeholder="Search"/>
+      {% if query %}
+        <a href="{{ clear_url }}"><img title="{% trans "Clear Search" %}" src="{% static "images/rosetta/clear.svg" %}"/></a>
+      {% endif %}
+    </form>
+    <ul>
+      {% for fid, name in pofile.filters %}
+        <li{% if filter == fid %} class="active"{% endif %}>
+          <a href="?filter={{ fid }}">{% trans name %}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
   {% autopaginate entries msg_per_page as items %}
-  <h1>{% blocktrans  %}Translate into {{ language_name }}{% endblocktrans %}</h1>
 
-  <ul class="object-tools">
-    <li class="nobubble">{% trans "Display:" %}</li>
-    {% for f in pofile.filters %}
-      <li {% if filter == f.0 %}class="active"{% endif %}>
-        <a href="?filter={{ f.0 }}">{{ f.1 }}</a>
-      </li>
-    {% endfor %}
-  </ul>
-
-    <div id="changelist" class="module">
-      <div id="toolbar">
-        <form id="changelist-search" action="" method="post">
-          <div>
-            {% rosetta_csrf_token %}
-            <label for="searchbar"><img src="{% static "admin/img/icon_searchbox.png" %}" alt="{% trans "Search" %}" /></label>
-            <input type="text" size="40" name="query" value="{{ query }}" id="searchbar" tabindex="0" />
-            <input type="submit" name="search" value="{% trans "Go" %}" />
-          </div>
-        </form>
-      </div>
       <form method="post" action="">
-        <table>
+        <table class="list">
           <thead>
             <tr>
               {% rosetta_csrf_token %}
               <th><div class="text">{% trans "Original" %}</div></th>
               <th>{{ language_name }}</th>
-              <th class="c fuzzy"><span class="checkall">[-]</span> {% trans "Fuzzy" %}</th>
-              <th class="c occur">{% trans "Occurrences(s)" %}</th>
+              <th class="c fuzzy"><span class="checkall"></span> {% trans "Fuzzy" %}</th>
+              <th class="occur">{% trans "Occurrences(s)" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +99,11 @@
                     {% endif %}
                   </td>
                   <td class="translation">
-                    <textarea rows="{{message.msgid|format_message|lines_count}}" cols="40" name="{{ message.md5hash }}_msg" tabindex="{% increment tab_idx %}">{{message.msgstr}}</textarea>
+                    {% if message.is_short %}
+                      <input name="{{ message.md5hash }}" value="{{ message.msgstr }}" tabindex="{% increment tab_idx %}"/>
+                    {% else %}
+                      <textarea rows="{{message.msgid|format_message|lines_count}}" name="{{ message.md5hash }}_msg" tabindex="{% increment tab_idx %}">{{message.msgstr}}</textarea>
+                    {% endif %}
                     {% if ENABLE_TRANSLATION_SUGGESTIONS %}
                       <a href="#" class="suggest">{% trans "suggest" %}</a>
                     {% endif %}
@@ -104,30 +113,30 @@
                   <input type="checkbox" name="{{message.md5hash}}_fuzzy" value="1" {% if message|is_fuzzy %}checked="checked"{% endif %} />
                 </td>
                 <td class="location">
-                  {% for fn,lineno in message.occurrences %}
-                    <code{% if forloop.counter|gt:"3" %} class="hide"{% endif %}>{{ fn }}:{{lineno}}</code>
+                  {% for fn,lineno in message.occurrences_trim %}
+                    <code{% if forloop.counter|gt:1 %} class="hide"{% endif %}>{{ fn }}:{{lineno}}</code>
                   {% endfor %}
-                  {% if message.occurrences|length|gt:"3" %}
-                    <a href="#">&hellip; ({% blocktrans count message.occurrences|length|minus:"3" as more_count %}{{more_count}} more{% plural %}{{more_count}} more{% endblocktrans %})</a>
+                </td>
+                <td>
+                  {% if message.occurrences|length|gt:1 %}
+                    <a href="#" class="show_more">...</a>
                   {% endif %}
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-        {% if query %}
-          <input type="hidden" name="query" value="{{query}}"  />
-        {% endif %}
-        <div class="submit-row">
+        {% if query %}<input type="hidden" name="query" value="{{ query }}"/>{% endif %}
+        <div id="submit-row">
           {% paginate %}
-          <button type="submit" class="button default" tabindex="{% increment tab_idx %}"
-            {% if page_obj.has_next %}
-              name="save" value="{{ page|add:1 }}">{% trans "Save and Next Page" %}
-            {% else %}
-              name="save" value="0">{% trans "Save and Quit" %}
+          {% if page_obj.has_next %}
+            <button type="submit" class="button default" tabindex="{% increment tab_idx %}" style="float: right;" name="save" value="{{ page|add:1 }}">{% trans "save and next" %} ››</button>
+          {% else %}
+            <button type="submit" class="button default" tabindex="{% increment tab_idx %}" style="float: right;" name="save" value="0">{% trans "save and quit" %}</button>
             {% endif %}
           </button>
         </div>
       </form>
     </div>
+
 {% endblock %}

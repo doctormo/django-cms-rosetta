@@ -1,0 +1,499 @@
+
+body, p, h1, h2, h3, h4, ol, ul, li, form, input, table, td, th, fieldset, pre {
+  margin: 0;
+  padding: 0;
+}
+table {
+  border-collapse: collapse;
+  border-spacing:0;
+}
+ul, ol {
+  list-style: none;
+}
+
+ul {
+  padding: 5px 0 5px 20px ;
+  list-style-type: disc;
+}
+ol {
+  padding: 5px 0 5px 25px ;
+  list-style-type: decimal;
+}
+
+
+body, p, h1, h2, h3, h4, ol, ul, li, form, input, table, td, th, fieldset, pre {
+  font-family: Helvetica, Arial, Verdana, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: normal;
+  color: #000000;
+  text-align: left;
+  color: #3f4547;
+}
+
+a {
+  text-decoration: none;
+  color: #1c83b5;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4 {
+  font-weight: normal;
+  padding: 9px 0;
+}
+
+h1 {
+  font-size: 20px;
+  line-height: 26px;
+}
+
+h2 {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+h3 {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+h4 {
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.page-center-wrap {
+  text-align: left;
+}
+.page-center-content {
+  text-align: center;
+  margin: 0px;
+  margin: auto;
+  width: 1000px;
+}
+
+.clear {
+  clear: both;
+}
+
+body {
+  background-color: #dee1e2;
+}
+
+
+
+
+#header {
+  background-color: #26292b;
+  color: #ffffff;
+  border-radius: 0px 0px 6px 6px;
+  margin-bottom: 20px;
+}
+
+#title {
+  text-align: left;
+  padding: 12px 25px 8px 14px;
+}
+#title img {
+  float: left;
+}
+#title img#home {
+  left: 10px;
+  top: 10px;
+  position: absolute;
+  opacity: 0.5;
+}
+#title img#home:hover {
+  opacity: 1;
+}
+#title img#brand {
+  position:relative;
+  width: 28px;
+  height: 28px;
+  padding-right: 10px;
+  top: -6px;
+}
+
+#title a {
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000000;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+#navigation ul {
+  float: right;
+  padding: 3px 0 0 0;
+  margin: 9px 0 0 0;
+  list-style: none;
+}
+
+#navigation li {
+  float: left;
+  margin: 0 10px;
+}
+
+#navigation li a {
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000000;
+  font-weight: bold;
+  padding: 7px 25px 5px 25px;
+}
+
+#navigation li.active a, #navigation li a:hover {
+  background-color: #4d5558;
+  text-shadow: 1px 1px 0 #26292b;
+  border-radius: 11px;
+  text-decoration: none;
+}
+
+#navigation li.feed-link a {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 10px 0 30px;
+}
+
+#navigation li.feed-link a img {
+  border: none;
+}
+
+/* text box in navigation */
+#navigation li input {
+  height: 15px;
+  width: 100px;
+  padding: 2px 4px;
+  margin-top: 0px;
+  position: relative;
+  top: -2px;
+  border-radius: 7px;
+}
+
+/**** actions ****/
+
+#actions {
+  margin-bottom: 1px;
+}
+
+#actions ul {
+  padding: 0 25px;
+  margin: 0;
+  list-style: none;
+}
+
+#actions li {
+  float: left;
+  margin: 0 2px 0 0;
+  padding: 8px 0;
+}
+
+#actions li a {
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #6e797d;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px 25px;
+  background-color: #959ea2;
+  border-radius: 6px 6px 0px 0px;
+  -webkit-box-shadow: inset 0px -4px 5px -5px rgba(0,0,0,0.75);
+  -moz-box-shadow: inset 0px -4px 5px -5px rgba(0,0,0,0.75);
+  box-shadow: inset 0px -4px 5px -5px rgba(0,0,0,0.75);
+}
+
+#actions li:last-child a {
+  box-shadow: none;
+  background-color: white;
+  color: #26292B;
+  text-shadow: 1px 1px 0 #eee;
+}
+
+#actions li a:hover {
+  text-shadow: 1px 1px 0 #51595c;
+  background-color: #6d787c;
+}
+
+#actions li:last-child a:hover {
+  text-shadow: 1px 1px 0 #eee;
+  background-color: white;
+}
+
+#content-wrap {
+  clear: both;
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 25px;
+}
+
+#content {
+  width: 75%;
+  padding-right: 25px;
+  display: table-cell;
+}
+
+/****** lists *******/
+
+table.list {
+  width: 100%;
+}
+table.list h3 {
+  font-size: 16px;
+  line-height: 16px;
+  padding: 0;
+}
+
+table.list tr {
+  border-width: 1px 0;
+  border-color: #f0f1f2;
+  border-style: solid;
+}
+table.list.list-all .closed {
+  text-decoration: line-through;
+}
+
+table.list td {
+  padding: 4px 15px;
+  color: #4b4b4b;
+}
+table.list th {
+  padding: 2px 15px;
+}
+table.list td.details {
+  width: 100%;
+}
+
+table.list td img {
+  vertical-align: middle;
+}
+
+table.list td.title a {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+table.list .c {
+  text-align: center;
+}
+
+/**** topbar ****/
+
+#topbar {
+  margin-bottom: 18px;
+}
+
+#topbar input {
+  float: right;
+  width: 240px;
+  border-radius: 11px;
+  padding-left: 8px;
+  margin-bottom: 12px;
+}
+
+#topbar ul {
+  list-style: none;
+  padding: 0
+}
+
+#topbar ul li {
+  display: table-cell;
+}
+#topbar ul li a {
+  margin: 2px 5px;
+  padding: 4px 10px;
+  color: white;
+  border-radius: 11px;
+  background-color: #3a95c4;
+}
+
+/**** sidebar ****/
+
+#sidebar {
+  display: table-cell;
+  width: 235px;
+}
+
+#sidebar h4 {
+  font-weight: bold;
+}
+
+#sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+#sidebar li {
+  padding: 2px 4px 2px 15px;
+  margin-bottom: 1px;
+  border-radius: 11px;
+}
+#sidebar li span {
+  background-color: #3a95c4;
+  color: white;
+  float: right;
+  border-radius: 11px;
+  display: inline-block;
+  padding: 0px 8px 0px 8px;
+}
+
+#sidebar li a {
+  text-decoration: none;
+  color: #798488;
+}
+
+#sidebar li.active,
+#sidebar li.active:hover {
+  background-color: #e7e9ea;
+}
+#sidebar li:hover {
+  background-color: #f4f5f7;
+}
+#sidebar li.active span {
+  background-color: white;
+  color: #3f4547;
+}
+
+#sidebar li.active a {
+  text-shadow: 0 1px 0 #ffffff;
+  color: #3f4547;
+}
+#sidebar li:hover a {
+  color: #3f4547;
+}
+#sidebar input {
+  width: 100%;
+  border-radius: 11px;
+  padding-left: 8px;
+  margin-bottom: 12px;
+}
+
+
+
+#footer {
+  padding: 20px 40px;
+}
+
+#footer p {
+  float: right;
+  font-size: 11px;
+  color: #989898;
+  text-shadow: 0 1px 0 #ffffff;
+}
+
+textarea {
+  width: 70%;
+}
+
+input[type="text"], input[type="password"], textarea {
+  border: 1px solid #d5dde0;
+  padding: 4px;
+  font-size: 14px;
+  background-color: #fbfbfb;
+  border-radius: 4px;
+  width: 400px;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+  border-color: #c2e395;
+}
+
+input[type="submit"] {
+  border: none;
+  padding: 5px 15px;
+  font-size: 12px;
+  background-color: #69b500;
+  text-shadow: 1px 1px 0 #457800;
+  color: #ffffff;
+  border-radius: 11px;
+}
+
+input[type="submit"]:hover {
+  background-color: #73c700;
+}
+
+input[type="submit"]:active {
+  background-color: #599900;
+}
+
+.comment .details {
+  text-align: left;
+}
+
+#submit-row {
+  padding: 15px 12px 14px;
+}
+
+.original {
+  min-width: 110px;
+}
+.hide {
+  display: none
+}
+.visible .hide {
+  display: block;
+  white-space: nowrap;
+}
+.translation input {
+  min-width: 450px;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+.translation textarea {
+  min-width: 443px;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+/**** messages ****/
+
+#messages:empty {
+  display: none;
+}
+#messages {
+  list-style-type: none;
+  margin: -4px 0px;
+  padding: 0px 4px 12px;
+}
+#messages li {
+  border: 2px solid white !important;
+  border-radius: 8px;
+  color: white;
+  padding: 12px 52px;
+  margin: 4px 30px;
+  background: 9px center url(../images/rosetta/messages/none.svg) no-repeat;
+}
+#messages .x-close {
+  float: right;
+  position: relative;
+  top: -5px;
+  right: -34px;
+  font-weight: bold;
+  font-size: 150%;
+  cursor: pointer;
+}
+#messages .info {
+  background-image: url(../images/rosetta/messages/info.svg);
+  background-color: #3465a4;
+  border-color: #204a87;
+}
+#messages .success {
+  background-image: url(../images/rosetta/messages/success.svg);
+  background-color: #73d216;
+  border-color: #4e9a06;
+}
+#messages .warning {
+  background-image: url(../images/rosetta/messages/warning.svg);
+  background-color: #f57900;
+  border-color: #ce5c00;
+}
+#messages .error {
+  background-image: url(../images/rosetta/messages/error.svg);
+  background-color: #cc0000;
+  border-color: #a40000;
+}
+#messages a {
+  color: white;
+  font-weight: bold;
+}
+

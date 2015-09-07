@@ -47,8 +47,19 @@ def set_flag(self, flag, value):
         self.flags.append(flag)
         self.updated = True
 
+def is_short(self):
+    return len(self.msgid) < 40 and '\n' not in self.msgid
+
+def occurrences_trim(self):
+    ret = []
+    for fn,lineno in self.occurrences:
+        fn = fn.split('django/contrib/')[-1].split('site-packages/')[-1]
+        ret.append((fn, lineno))
+    return ret
+
 # Monkey patch for unique-id for each entry
 POEntry.md5hash = property(get_md5hash)
 POEntry.set_flag = set_flag
 POEntry.set_msg = set_msg
-
+POEntry.is_short = is_short
+POEntry.occurrences_trim = occurrences_trim

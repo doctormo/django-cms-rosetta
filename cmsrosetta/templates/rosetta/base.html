@@ -1,57 +1,60 @@
-<!DOCTYPE html>
-{% load admin_static i18n %}
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ language }}">
+  {% load i18n static %}
   <head>
-    <title>{% block pagetitle %}{{ language_name }} {% trans "Translations" %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <link rel="stylesheet" href="{% static "admin/css/base.css" %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static "admin/css/forms.css" %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static "rosetta/rosetta.css" %}" type="text/css"/>
-    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
-    <script type="text/javascript">
-    //<!--
-        google.load("jquery", "1.3");
-        {% if ENABLE_TRANSLATION_SUGGESTIONS %}
-          google.load("language", "1");
-        {% endif %}
-    //-->
-    </script>
+    <title>{% block pagetitle %}All Languages{% endblock %} | {{ language_namo }} {% trans "Translations" %}</title>
+
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/rosetta/logo.svg' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/rosetta.css' %}" />
+    <script src="{% static 'admin/js/jquery.min.js' %}" type="text/javascript"></script>
+
+    {% block "head" %}{% endblock %}
   </head>
-  <body>
-    <div id="container">
-      <div id="header">
-        {% block header %}
-          <div id="branding">
-            <h1 id="site-name">
-              <a href="{% url 'rosetta' %}">{% blocktrans with site.name as site_name %}{{ site_name }} Translations{% endblocktrans %}</a>
-            </h1>
+
+  <body id="{% block sectionid %}generic{% endblock %}">
+    <div class="page-center-wrap">
+      <div class="page-center-content">
+        <div id="header">
+          <div id="navigation">
+            <ul>
+              <li><a href="">Subscribe</a></li>
+            </ul>
           </div>
-        {% endblock %}
-      </div>
-      <div class="breadcrumbs">
-        <a href="{% url 'rosetta' %}">{% trans "Home" %}</a>
-        {% if language %}
-          &rsaquo; <a href="{% url 'rosetta-list' %}">{{ language_name }}</a>
-        {% endif %}
-        {% block breadcumbs %}{% endblock %}
-      </div>
-      {% if messages %}
-        <ul id="messages">
-          {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-      <div id="content" class="flex">
-        <div id="content-main">
+          <div id="title">
+            {% if language %}
+              <a href="{% url "rosetta-list" %}"><img src="{% static language_logo %}" id="brand" title="CMS Rosetta Translations"/>
+              {{ language_namo }} {% trans "Translations" %}</a>
+            {% else %}
+              <a href="{% url "rosetta" %}"><img src="{% static "images/rosetta/logo.svg" %}" id="brand" title="CMS Rosetta Translations"/>
+              {% trans "All Languages" %}</a>
+            {% endif %}
+          </div>
+        </div>
+
+    {% if messages %}
+      <ul id="messages">{% for message in messages %}<li{% if message.tags %} class="{{ message.tags }}"{% endif %} title="{{ message.tags }}">
+        {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
+      </li>{% endfor %}</ul>
+    {% endif %}
+
+        <div id="actions">
+          <ul>
+            <li><a href="{% url 'rosetta' %}">{% trans "Language" %}</a></li>
+            {% if language %}
+              <li><a href="{% url 'rosetta-list' %}">{{ language_name }}</a></li>
+            {% endif %}
+            {% block breadcumbs %}{% endblock %}
+          </ul>
+          <div class="clear"></div>
+        </div>
+        <div id="content-wrap">
           {% block main %}{% endblock %}
         </div>
-      </div>
-      <div id="footer" class="breadcumbs">
-        <a href="https://code.launchpad.net/cmsrosetta">CMS Rosetta</a> <span class="version">{{version}}</span>
+        <div id="footer">
+          <p><a href="https://code.launchpad.net/cmsrosetta">CMS Rosetta</a> by <a href="http://divajutta.com/doctormo/">Martin Owens</a> - AGPLv3 Free Software Project</p>
+        </div>
       </div>
     </div>
   </body>

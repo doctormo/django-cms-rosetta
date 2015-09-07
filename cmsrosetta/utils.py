@@ -1,14 +1,17 @@
 
 __all__ = ('get_path', 'cache', 'p_cache')
 
+import os
+
+import django
 from django.utils.importlib import import_module
-from os.path import *
 
 from .settings import settings, CACHE_NAME
 
 from django.core.cache import get_cache
 cache = get_cache(CACHE_NAME)
 
+from os.path import normpath, dirname, isfile, abspath
 get_path = lambda p: normpath(abspath(isfile(p) and dirname(p) or p))
 PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
 
@@ -32,7 +35,7 @@ def locale_dirs():
               os.path.join(PROJECT_PATH, '..', 'locale')):
         yield (path, 'project')
 
-    for path in EXTRA_PATHS:
+    for path in getattr(settings, 'EXTRA_PATHS', []):
         yield (path, 'other')
 
     for root, dirnames, filename in os.walk(get_path(django.__file__)):
@@ -41,7 +44,7 @@ def locale_dirs():
 
     # project/app/locale
     for appname in settings.INSTALLED_APPS:
-        if EXCLUDED_APPLICATIONS and appname in EXCLUDED_APPLICATIONS:
+        if appname in getattr(settings, 'EXCLUDED_APPLICATIONS', []):
             continue
         apppath = os.path.join(get_path(import_module(appname).__file__), 'locale')
 

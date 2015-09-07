@@ -6,23 +6,8 @@
 {% endblock %}
 
 {% block main %}
-  <h1>&nbsp;</h1>
-
-  <ul class="object-tools">
-    <li class="nobubble">{% trans "Filter" %}:</li>
-    {% for k in kinds %}
-      <li{% if kind == k %} class="active"{% endif %}>
-        <a href="?filter=k">{% trans k|title %}</a>
-      </li>
-    {% endfor %}
-    <li{% if not kind %} class="active"{% endif %}>
-      <a href="?filter=all">{% trans "All" %}</a>
-    </li>
-  </ul>
-
-  <div class="module">
-    <h2>{% trans "All Applications" %}</h2>
-    <table cellspacing="0">
+  <div id="content">
+    <table class="list">
       <thead>
         <tr>
           <th>{% trans "Language" %}</th>
@@ -41,5 +26,17 @@
       </tbody>
     </table>
   </div>
-
+  <div id="sidebar">
+    <h2>Filter</h2>
+    <ul class="object-tools">
+      <li{% if not kind %} class="active"{% endif %}>
+        <a href="?filter=all">{% trans "All" %}</a>
+      </li>
+      {% for k in kinds %}
+        <li{% if kind == k %} class="active"{% endif %}>
+          <a href="?filter={{ k }}">{% trans k|title %}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 {% endblock %}
