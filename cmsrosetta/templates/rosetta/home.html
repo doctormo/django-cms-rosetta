@@ -18,7 +18,7 @@
       <tbody>
         {% for lang in languages %}
             </tr>
-            <td><a href="/{{ lang.id }}{{ current_url }}all/">{% trans lang.name %}</a></td>
+            <td><a href="/{{ lang.id }}{{ current_url }}{{ kind|default:"all" }}/">{% trans lang.name %}</a></td>
             {% progressbar lang.progress %}
             <td>{{ lang.people|join:', ' }}</td>
           <tr>
