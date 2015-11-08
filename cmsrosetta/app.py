@@ -43,13 +43,13 @@ class Locales(dict):
             return self.get_for_lang(key)
         return dict.__getitem__(self, key)
 
-    def progress(self):
+    def progress(self, kind=None):
         ret = []
         for (lang, name) in self.languages.items():
             index = []
             prog = []
             ret.append({'id': lang, 'name': name, 'progress': prog})
-            for item in self[lang]:
+            for item in self.get_for_lang(lang, kind):
                 for (a,b,c,d) in item.progress() or []:
                     if a not in index:
                         index.append(a)
@@ -58,8 +58,10 @@ class Locales(dict):
                         prog[index.index(a)][-1] += d
         return ret
 
-    def get_for_lang(self, lang):
-        for kind in self.keys():
+    def get_for_lang(self, lang, *kinds):
+        if not kinds or not kinds[0]:
+            kinds = self.keys()
+        for kind in kinds:
             for locale in self[kind].values():
                 yield locale[lang]
 

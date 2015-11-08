@@ -27,9 +27,12 @@ class Stats(TemplateView, TranslatorMixin):
     template_name = 'rosetta/home.html'
 
     def get_context_data(self, **data):
+        kind = self.datum('filter')
+        if kind == 'all':
+            kind = None
         data = TranslatorMixin.get_context_data(self, **data)
         data['language'] = None
-        data['languages'] = self.locales.progress()
+        data['languages'] = self.locales.progress(kind=kind)
         data['kind'] = self.datum('filter')
         return data
 
