@@ -33,8 +33,8 @@ setup(
     packages     = find_packages(),
     install_requires = [
       'setuptools',
-      'polib>=1.0.4',
-      'django-cms>=3.0',
+      'polib>=1.0.7',
+      'django-cms>=3.1.3',
       'django-haystack>=2.0',
       'django-request-tree>=0.8',
     ],
