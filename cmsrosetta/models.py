@@ -39,6 +39,7 @@ class Translation(Model):
     
     edited = PositiveIntegerField(default=0)
     added  = PositiveIntegerField(default=0)
+    ousted = BooleanField(default=False)
 
     def __str__(self):
         return _("%(user)s translated %(page)s[%(lang)s]") % self
