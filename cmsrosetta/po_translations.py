@@ -32,7 +32,8 @@ from polib import POFile, pofile as get_po
 
 from .poentry import POEntry
 from .poplugin import *
-from .settings import *
+from .app import RosettaApp
+from .settings import POFILENAMES, POFILE_WRAP_WIDTH, settings
 from .utils import *
 
 import sys
@@ -125,6 +126,7 @@ class LocaleDir(TranslationDirectory):
     def __init__(self, path, kind):
         self.path = get_path(path)
         self.kind = kind
+        super(LocaleDir, self).__init__(RosettaApp.languages)
 
     def generate(self, lang):
         poname = self._generate_name(lang)

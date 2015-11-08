@@ -18,11 +18,11 @@
 Base classes for translation plugins for your application.
 """
 
-from .settings import LANGS
-
 class TranslationPlugin(dict):
     """Base class to list available translatable items"""
-    langs = LANGS
+    def __init__(self, languages):
+        self.languages = languages
+        self.generate()
 
     def __setitem__(self, key, value):
         if key in self:
@@ -32,7 +32,7 @@ class TranslationPlugin(dict):
     def __getitem__(self, key):
         if not len(self):
             self.generate()
-        if key in LANGS:
+        if key in self.languages:
             return [ b[key] for (a,b) in self.items() ]
         return dict.__getitem__(self, key)
 
@@ -51,18 +51,21 @@ class TranslationPlugin(dict):
 class TranslationDirectory(list):
     name = 'None'
 
+    def __init__(self, languages):
+        self.languages = languages
+
     def generate(self):
         raise NotImplementedError("Generate is required for translation directories")
 
     def __iter__(self):
         # THIS LOOKS BROKEN XXX
-        for lang in LANGS:
+        for lang in self.languages:
             yield self[lang]
 
     def __getitem__(self, key):
         if not len(self):
             self._generate_all()
-        index  = list(LANGS).index(key)
+        index  = list(self.languages).index(key)
         pofile = list.__getitem__(self, index)
         if pofile.is_stale:
             self[index] = self.generate(key)
@@ -80,7 +83,7 @@ class TranslationDirectory(list):
             yield lang
 
     def _generate_all(self):
-        for lang in LANGS:
+        for lang in self.languages:
             self.append(self.generate(lang))
 
 

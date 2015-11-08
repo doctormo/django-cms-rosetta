@@ -21,11 +21,12 @@
 from django.contrib.sites.models import Site
 from cms.models import Page
 
-from cmsrosetta.settings import LANGS
-from cmsrosetta.poplugin import *
+from .app import RosettaApp
+from .poplugin import TranslationDirectory
 
 class CmsPage(TranslationDirectory):
     def __init__(self, page, lang=None):
+        super(CmsPage, self).__init__(RosettaApp.languages)
         self.page = page
         self.lang = lang
         self.app  = self

@@ -23,10 +23,10 @@ import os
 from django.contrib.sites.models import Site
 from cms.models import Page
 
-from cmsrosetta.utils import locale_dirs
-from cmsrosetta.settings import LANGS
-from cmsrosetta.poplugin import TranslationPlugin
-from cmsrosetta.po_translations import LocaleDir
+from .utils import locale_dirs
+from .poplugin import TranslationPlugin
+from .po_translations import LocaleDir
+from .cms_translations import CmsPage
 
 class LocaleDirectories(TranslationPlugin):
     slug = 'project'
@@ -46,14 +46,13 @@ class DjangoDirectories(LocaleDirectories):
 class ThirdPartyDirectories(LocaleDirectories):
     slug = 'third-party'
 
-from cmsrosetta.cms_translations import CmsPage
-
 class CmsTranslations(TranslationPlugin):
     """Generate po for django-cms"""
     slug = 'cms'
 
-    def __init__(self):
+    def __init__(self, languages):
         self.site = Site.objects.get_current()
+        super(CmsTranslations, self).__init__(languages)
 
     def generate(self):
         for page in Page.objects.public().filter(site=self.site):

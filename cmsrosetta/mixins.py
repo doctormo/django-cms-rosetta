@@ -21,24 +21,29 @@ Mixin locales access (global per thread) and restrict the translation permission
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
+from django.contrib.staticfiles import finders
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from cms.utils import get_language_from_request
 
-from .models import Locales, LANGS, PLUGINS
+from .app import RosettaApp
 from .settings import *
-
 
 class TranslatorMixin(object):
     """Prevent people who do not have translator rights from
        accessing translator pages, shows 403 instead."""
-    locales = Locales()
+
+    @property
+    def locales(self):
+        return RosettaApp.locales
 
     @property
     def language(self):
         lang = get_language_from_request(self.request)
-        if lang not in LANGS:
-            return LANGS.keys()[0]
+        if lang not in RosettaApp.languages:
+            if not RosettaApp.languages:
+                raise ValueError("Languages isn't setup yet? that's odd.")
+            return RosettaApp.languages.keys()[0]
         return lang
 
     @method_decorator(permission_required("cmsrosetta.change_translation", raise_exception=True))
@@ -54,12 +59,19 @@ class TranslatorMixin(object):
         return {
           'languages'       : settings.LANGUAGES,
           'language'        : self.language,
-          'language_name'   : LANGS.get(self.language, 'Unknown'),
-          'language_namo'   : _(LANGS.get(self.language, 'Unknown')),
-          'language_logo'   : 'images/rosetta/%s.svg' % self.language,
+          'language_name'   : RosettaApp.languages.get(self.language, 'Unknown'),
+          'language_namo'   : _(RosettaApp.languages.get(self.language, 'Unknown')),
+          'language_logo'   : self.get_icon(),
           'current_url'     : path,
           'language_source' : MESSAGES_SOURCE_LANGUAGE_CODE,
           'msg_per_page'    : MESSAGES_PER_PAGE, 
-          'kinds'           : PLUGINS.keys(),
+          'kinds'           : RosettaApp.plugins.keys(),
           'site'            : Site.objects.get_current()
         }
+
+    def get_icon(self):
+        icon = 'images/rosetta/langs/%s.svg' % self.language
+        if not finders.find(icon):
+            return 'images/rosetta/langs/default.svg'
+        return icon
+
