@@ -32,7 +32,7 @@ class CmsPage(TranslationDirectory):
         self.app  = self
 
     def __getitem__(self, lang):
-        if lang not in LANGS:
+        if lang not in self.languages:
             raise KeyError("Unknown language: %s" % str(lang))
         if lang == self.lang:
             return self

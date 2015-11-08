@@ -58,7 +58,10 @@ class NewPoFile(POFile):
         POFile.__init__(self, *args, **kwargs)
         self.loaded_time = now()
         self.filename = os.path.realpath(self.fpath)
-        self.mofile = self.filename[:-2] + 'mo'
+
+    @property
+    def mofile(self):
+        return self.filename[:-2] + 'mo'
 
     def all_entries(self):
         return [ e for e in self if not e.obsolete ]
@@ -87,7 +90,7 @@ class NewPoFile(POFile):
     @property
     def language(self):
         """Returns the translated full name for this language translation"""
-        return _(LANGS.get(self.lang, 'Unknown'))
+        return _(RosettaApp.languages.get(self.lang, 'Unknown'))
 
     @property
     def last_modified(self):
@@ -123,14 +126,16 @@ class NewPoFile(POFile):
 
 class LocaleDir(TranslationDirectory):
     """A single locale directory"""
+    po_class = NewPoFile
+
     def __init__(self, path, kind):
         self.path = get_path(path)
         self.kind = kind
         super(LocaleDir, self).__init__(RosettaApp.languages)
 
     def generate(self, lang):
-        poname = self._generate_name(lang)
-        pofile = get_po(poname, klass=NewPoFile, wrapwidth=POFILE_WRAP_WIDTH)
+        name = self._generate_name(lang)
+        pofile = get_po(name, klass=self.po_class, wrapwidth=POFILE_WRAP_WIDTH)
         pofile.app = self
         return pofile
 
