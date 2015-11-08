@@ -35,11 +35,11 @@
 
   <div id="topbar">
     <form class="search" method="post" action="">
-      {% csrf_token %}
-      <input type="text" name="query" value="{{ query|default:'' }}" placeholder="Search"/>
       {% if query %}
-        <a href="{{ clear_url }}"><img title="{% trans "Clear Search" %}" src="{% static "images/rosetta/clear.svg" %}"/></a>
+        <a class="clear" href="{{ clear_url }}"><img title="{% trans "Clear Search" %}" src="{% static "images/rosetta/clear.svg" %}"/></a>
       {% endif %}
+      {% csrf_token %}
+      <input type="text" name="query" value="{{ query|default:'' }}" placeholder="Search" {% if query %}style="margin-right: -25px;"{% endif %}/>
     </form>
     <ul>
       {% for fid, name in pofile.filters %}

@@ -15,6 +15,33 @@ from os.path import normpath, dirname, isfile, abspath
 get_path = lambda p: normpath(abspath(isfile(p) and dirname(p) or p))
 PROJECT_PATH = get_path(import_module(settings.SETTINGS_MODULE).__file__)
 
+class SearchIter(object):
+    def __init__(self, orig, query):
+        self.orig = orig
+        self.q = query.lower()
+        self.cache = None
+
+    def __iter__(self):
+        if self.cache is None:
+            self.cache = list(self.generate())
+        return self.cache.__iter__()
+
+    def generate(self):
+        for item in self.orig:
+            if not self.q \
+              or self.q in item.msgid.lower()\
+              or self.q in item.msgstr.lower()\
+              or self.q in unicode(item.comment).lower():
+                yield item
+
+    def __len__(self):
+        return len(list(self.__iter__()))
+
+    def __getitem__(self, *args):
+        if self.cache is None:
+            self.__iter__()
+        return self.cache.__getitem__(*args)
+
 def no_change(v):
     return v
 

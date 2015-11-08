@@ -287,7 +287,16 @@ table.list .c {
   width: 240px;
   border-radius: 11px;
   padding-left: 8px;
+  margin-right: -7px;
   margin-bottom: 12px;
+  position: relative;
+  z-index: 5;
+}
+#topbar a.clear {
+  float: right;
+  position: relative;
+  z-index: 10;
+  margin-top: 5px;
 }
 
 #topbar ul {

@@ -21,7 +21,9 @@ from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 
 from .mixins import TranslatorMixin
+from .utils import SearchIter
 from request_tree import data_tree
+
 
 class Stats(TemplateView, TranslatorMixin):
     template_name = 'rosetta/home.html'
@@ -59,7 +61,6 @@ class Item(TemplateView, TranslatorMixin):
         elif 'page' in request.POST:
             request.page = int(request.POST['page'])
 
-
         if not request.page:
             return redirect('rosetta')
 
@@ -91,7 +92,10 @@ class Item(TemplateView, TranslatorMixin):
         data['filter']  = self.datum('filter', 'untranslated')
         if not len(self.pofile.get_filter(data['filter'])):
             data['filter'] = 'all'
+        data['query']   = self.datum('query')
         data['entries'] = self.pofile.get_filter(data['filter'])
+        if data['query']:
+            data['entries'] = SearchIter(data['entries'], data['query'])
         data['pofile']  = self.pofile
         data['page']    = self.request.page
         return data
