@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.91+devel r"
+   version="1.0"
+   sodipodi:docname="ko.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:modified="TRUE"
+   inkscape:export-filename="de.png"
+   inkscape:export-xdpi="19.200001"
+   inkscape:export-ydpi="19.200001"
+   viewBox="0 0 48 48">
+  <defs
+     id="defs4">
+    <pattern
+       patternTransform="translate(162.60544,186.70541)"
+       id="pattern5113"
+       xlink:href="#pattern5102"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective2884"
+       inkscape:persp3d-origin="200 : 83.333338 : 1"
+       inkscape:vp_z="400 : 125.00001 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 125.00001 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       id="pattern5102"
+       patternTransform="translate(162.60544,201.1173)"
+       height="250.00002"
+       width="400"
+       patternUnits="userSpaceOnUse">
+      <g
+         id="g3148"
+         inkscape:export-xdpi="72"
+         inkscape:export-ydpi="72"
+         transform="translate(-162.60544,-201.11729)">
+        <rect
+           y="202.11729"
+           x="163.60544"
+           height="248"
+           width="398"
+           id="rect2160"
+           style="fill:#ff1d1d;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9000001;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+        <rect
+           y="351.11731"
+           x="387.60544"
+           height="100"
+           width="175"
+           id="rect3138"
+           style="fill:#ffffff;fill-opacity:1;stroke:none" />
+        <rect
+           y="201.11729"
+           x="387.60544"
+           height="100"
+           width="175"
+           id="rect3140"
+           style="fill:#ffffff;fill-opacity:1;stroke:none" />
+        <rect
+           y="201.11729"
+           x="162.60544"
+           height="100"
+           width="175"
+           id="rect3142"
+           style="fill:#ffffff;fill-opacity:1;stroke:none" />
+        <rect
+           y="351.11731"
+           x="162.60544"
+           height="100"
+           width="175"
+           id="rect3144"
+           style="fill:#ffffff;fill-opacity:1;stroke:none" />
+        <rect
+           y="202.11729"
+           x="163.60544"
+           height="248"
+           width="398"
+           id="rect3146"
+           style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9000001;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      </g>
+    </pattern>
+    <clipPath
+       id="clipPath5133"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         transform="matrix(1.1761905,0,0,1.1761905,89.729242,134.10061)"
+         d="m 336,151.00002 a 104,104 0 1 1 -208,0 104,104 0 1 1 208,0 z"
+         sodipodi:ry="104"
+         sodipodi:rx="104"
+         sodipodi:cy="151.00002"
+         sodipodi:cx="232"
+         id="path5135"
+         style="color:#000000;fill:none;stroke:#000000;stroke-width:2.5506072;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         sodipodi:type="arc" />
+    </clipPath>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter5273">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur5275" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite5277" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur5279" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite5281" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite5283" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur5285" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting5287">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight5289" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite5291" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite5293" />
+    </filter>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective3042" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter4426">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur4428" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite4430" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur4432" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite4434" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite4436" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur4438" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting4440">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight4442" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite4444" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite4446" />
+    </filter>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective3291" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter3768">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur3770" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite3772" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur3774" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite3776" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite3778" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur3780" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting3782">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight3784" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite3786" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite3788" />
+    </filter>
+    <clipPath
+       id="clipPath3713"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         transform="matrix(2.9515724,0,0,2.8703364,-234.7648,-133.42086)"
+         d="m 336,151.00002 a 104,104 0 1 1 -208,0 104,104 0 1 1 208,0 z"
+         sodipodi:ry="104"
+         sodipodi:rx="104"
+         sodipodi:cy="151.00002"
+         sodipodi:cx="232"
+         id="path3715"
+         style="color:#000000;fill:none;stroke:#000000;stroke-width:2.5506072;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter5273);enable-background:accumulate"
+         sodipodi:type="arc" />
+    </clipPath>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective3518" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter4707">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur4709" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite4711" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur4713" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite4715" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite4717" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur4719" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting4721">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight4723" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite4725" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite4727" />
+    </filter>
+    <clipPath
+       id="clipPath4696"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         sodipodi:type="arc"
+         style="color:#000000;fill:none;stroke:#000000;stroke-width:2.5506072;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter5273);enable-background:accumulate"
+         id="path4698"
+         sodipodi:cx="232"
+         sodipodi:cy="151.00002"
+         sodipodi:rx="104"
+         sodipodi:ry="104"
+         d="m 336,151.00002 a 104,104 0 1 1 -208,0 104,104 0 1 1 208,0 z"
+         transform="matrix(2.8703364,0,0,2.8703364,-38.395099,-133.42085)" />
+    </clipPath>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective3742" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter4838">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur4840" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite4842" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur4844" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite4846" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite4848" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur4850" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting4852">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight4854" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite4856" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite4858" />
+    </filter>
+    <clipPath
+       id="clipPath4828"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         sodipodi:type="arc"
+         style="color:#000000;fill:none;stroke:#000000;stroke-width:2.5506072;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter5273);enable-background:accumulate"
+         id="path4830"
+         sodipodi:cx="232"
+         sodipodi:cy="151.00002"
+         sodipodi:rx="104"
+         sodipodi:ry="104"
+         d="m 336,151.00002 a 104,104 0 1 1 -208,0 104,104 0 1 1 208,0 z"
+         transform="matrix(1.1761905,0,0,1.1761905,91.033578,19.387698)" />
+    </clipPath>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective3983" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter4570">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur4572" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite4574" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur4576" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite4578" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite4580" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur4582" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting4584">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight4586" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite4588" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite4590" />
+    </filter>
+    <clipPath
+       id="clipPath4560"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         sodipodi:type="arc"
+         style="color:#000000;fill:none;stroke:#000000;stroke-width:2.5506072;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter5273);enable-background:accumulate"
+         id="path4562"
+         sodipodi:cx="232"
+         sodipodi:cy="151.00002"
+         sodipodi:rx="104"
+         sodipodi:ry="104"
+         d="m 336,151.00002 a 104,104 0 1 1 -208,0 104,104 0 1 1 208,0 z"
+         transform="matrix(2.7769231,0,0,2.7769231,-191.58344,-119.31545)" />
+    </clipPath>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective4219" />
+    <clipPath
+       id="clipPath10081"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         sodipodi:type="arc"
+         style="color:#000000;fill:none;stroke:#000000;stroke-width:2.5506072;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter5273);enable-background:accumulate"
+         id="path10083"
+         sodipodi:cx="232"
+         sodipodi:cy="151.00002"
+         sodipodi:rx="104"
+         sodipodi:ry="104"
+         d="m 336,151.00002 a 104,104 0 1 1 -208,0 104,104 0 1 1 208,0 z"
+         transform="matrix(0.47225158,0,0,0.47225158,-109.56237,-71.309996)" />
+    </clipPath>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective12609" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter5273-4">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur5275-1" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite5277-3" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur5279-0" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite5281-2" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite5283-9" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur5285-6" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="#ffffff"
+         id="feSpecularLighting5287-0">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight5289-9" />
+      </feSpecularLighting>
+      <feComposite
+         k4="0"
+         k1="0"
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite5291-3" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite5293-5" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:label="Deep colors plastic"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Transparent plastic with deep colors"
+       id="filter12656">
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result6"
+         in="SourceGraphic"
+         id="feGaussianBlur12658" />
+      <feComposite
+         operator="xor"
+         in="result6"
+         in2="SourceGraphic"
+         id="feComposite12660" />
+      <feGaussianBlur
+         stdDeviation="10"
+         result="result2"
+         id="feGaussianBlur12662" />
+      <feComposite
+         result="result91"
+         operator="atop"
+         in2="SourceGraphic"
+         id="feComposite12664" />
+      <feComposite
+         operator="xor"
+         in="result2"
+         result="result4"
+         in2="result91"
+         id="feComposite12666" />
+      <feGaussianBlur
+         stdDeviation="5"
+         result="result3"
+         in="result4"
+         id="feGaussianBlur12668" />
+      <feSpecularLighting
+         surfaceScale="12"
+         specularConstant="3"
+         specularExponent="35"
+         result="result5"
+         in="result3"
+         lighting-color="rgb(255,255,255)"
+         id="feSpecularLighting12670">
+        <feDistantLight
+           azimuth="235"
+           elevation="45"
+           id="feDistantLight12672" />
+      </feSpecularLighting>
+      <feComposite
+         result="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.7"
+         in="SourceGraphic"
+         in2="result5"
+         id="feComposite12674" />
+      <feComposite
+         operator="in"
+         in="result7"
+         in2="SourceGraphic"
+         id="feComposite12676" />
+    </filter>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective4510" />
+    <linearGradient
+       id="linearGradient4005">
+      <stop
+         id="stop4007"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:0.52941179;" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0.49019608;"
+         offset="0.83950615"
+         id="stop4023" />
+      <stop
+         id="stop4009"
+         offset="1"
+         style="stop-color:#000000;stop-opacity:0;" />
+    </linearGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.230863,0.00648564,-0.00685748,1.3014316,-14.994408,-8.6809254)"
+       r="86.201454"
+       fy="31.15563"
+       fx="55.301197"
+       cy="31.15563"
+       cx="55.301197"
+       id="radialGradient4488"
+       xlink:href="#linearGradient4482"
+       inkscape:collect="always" />
+    <linearGradient
+       id="linearGradient4482">
+      <stop
+         id="stop4484"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0.59144813"
+         id="stop4490" />
+      <stop
+         id="stop4486"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0;" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.1035693"
+     inkscape:cx="-69.186941"
+     inkscape:cy="-70.123405"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer2"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     showgrid="false"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-211.56697,-377.19187)"
+     style="display:inline" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2"
+     style="display:inline"
+     transform="translate(-8.3001022,-200.1479)">
+    <circle
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#ffffff;stroke:#000000;stroke-width:2.01406479;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       id="path5131-0"
+       cx="32.300102"
+       cy="224.1479"
+       r="22.992968" />
+    <g
+       transform="matrix(0.31025021,-0.46537649,0.46537649,0.31025021,32.300102,224.1479)"
+       id="g10027">
+      <!--arctan(-3/2)-->
+      <use
+         height="96"
+         width="144"
+         y="0"
+         x="0"
+         xlink:href="#b1"
+         transform="translate(0,-38)"
+         id="use10029" />
+      <use
+         height="96"
+         width="144"
+         y="0"
+         x="0"
+         xlink:href="#b1"
+         transform="translate(0,-44)"
+         id="use10031" />
+      <use
+         height="96"
+         width="144"
+         y="0"
+         x="0"
+         xlink:href="#b1"
+         transform="translate(0,-50)"
+         id="use10033" />
+      <use
+         height="96"
+         width="144"
+         y="0"
+         x="0"
+         xlink:href="#b2"
+         transform="translate(0,38)"
+         id="use10035" />
+      <use
+         height="96"
+         width="144"
+         y="0"
+         x="0"
+         xlink:href="#b2"
+         transform="translate(0,44)"
+         id="use10037" />
+      <use
+         height="96"
+         width="144"
+         y="0"
+         x="0"
+         xlink:href="#b2"
+         transform="translate(0,50)"
+         id="use10039" />
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#cc0000"
+         d="M 0,24 A 24,24 0 0 0 0,-24 18,18 0 0 0 0,12"
+         id="path10041" />
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#204a87"
+         d="M 0,-24 A 12,12 0 0 0 0,0 12,12 0 0 1 0,24 24,24 0 0 1 0,-24"
+         id="path10043" />
+    </g>
+  </g>
+</svg>
