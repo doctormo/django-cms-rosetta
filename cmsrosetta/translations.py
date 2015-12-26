@@ -55,6 +55,7 @@ class CmsTranslations(TranslationPlugin):
         super(CmsTranslations, self).__init__(languages)
 
     def generate(self):
-        for page in Page.objects.public().filter(site=self.site):
-            self[page.pk] = CmsPage(page)
+         pass
+    #    for page in Page.objects.public().filter(site=self.site):
+    #        self[page.pk] = CmsPage(page)
 

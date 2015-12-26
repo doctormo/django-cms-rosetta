@@ -21,7 +21,7 @@ Loads all the current progress into memory.
 import imp
 from collections import OrderedDict
 
-from django.utils.importlib import import_module
+from importlib import import_module
 from django.apps import AppConfig, apps
 
 from .settings import settings, MESSAGES_SOURCE_LANGUAGE_CODE

@@ -8,8 +8,8 @@ from django.utils.importlib import import_module
 
 from .settings import settings, CACHE_NAME
 
-from django.core.cache import get_cache
-cache = get_cache(CACHE_NAME)
+from django.core.cache import caches
+cache = caches[CACHE_NAME]
 
 from os.path import normpath, dirname, isfile, abspath
 get_path = lambda p: normpath(abspath(isfile(p) and dirname(p) or p))

@@ -23,10 +23,11 @@ from cms.models import Page
 
 from .app import RosettaApp
 from .poplugin import TranslationDirectory
+from .po_translations import NewPoFile
 
-class CmsPage(TranslationDirectory):
+class CmsPage(NewPoFile):
     def __init__(self, page, lang=None):
-        super(CmsPage, self).__init__(RosettaApp.languages)
+        #super(CmsPage, self).__init__()
         self.page = page
         self.lang = lang
         self.app  = self
