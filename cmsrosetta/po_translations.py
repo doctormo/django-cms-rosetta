@@ -20,12 +20,12 @@ import django
 import os
 
 from datetime import datetime
+from importlib import import_module
 from collections import defaultdict
 from glob import glob
 
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.utils.importlib import import_module
 from django.utils.timezone import now
 
 from polib import POFile, pofile as get_po
