@@ -4,7 +4,7 @@ __all__ = ('get_path', 'cache', 'p_cache')
 import os
 
 import django
-from django.utils.importlib import import_module
+from importlib import import_module
 
 from .settings import settings, CACHE_NAME
 
