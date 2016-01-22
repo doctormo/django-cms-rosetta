@@ -21,7 +21,7 @@ Fix some issues in django-cms for translations with rosetta.
 from django.utils.translation import ugettext_lazy as _
 
 from cms.models import Page
-from cms.cms_toolbars import PageToolbar, PlaceholderToolbar
+from cms.cms_toolbar import PageToolbar, PlaceholderToolbar
 from cms.toolbar_pool import toolbar_pool
 from cms.toolbar.toolbar import CMSToolbar
 
